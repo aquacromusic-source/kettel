@@ -1,6 +1,7 @@
 'use client'
 import { T, CORD_COLORS, FINISHES, GRAV_FONTS } from './tokens'
 import { SportIcon } from './Icons'
+import { useId } from 'react'
 
 type CordColor = typeof CORD_COLORS[0]
 type Finish = typeof FINISHES[0]
@@ -47,8 +48,9 @@ export default function BraceletPreview({
   const plateH = 54
   const cx = width / 2
   const cy = height / 2
-  const cordId = `cord-${cordColor.id}-${Math.random().toString(36).slice(2,7)}`
-  const weaveId = `weave-${cordColor.id}-${Math.random().toString(36).slice(2,7)}`
+  const uid = useId().replace(/:/g, '')
+  const cordId = `cord-${cordColor.id}-${uid}`
+  const weaveId = `weave-${cordColor.id}-${uid}`
 
   return (
     <div style={{
