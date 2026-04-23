@@ -23,7 +23,7 @@ export default function BraceletPreview({
   text = '',
   mode = 'name',
   sport = 'football',
-  cordColor = CORD_COLORS[0],
+  cordColor = CORD_COLORS[7], // Orange STRAP. par défaut — visible sur fond sombre
   finish = FINISHES[0],
   font = GRAV_FONTS[0],
   width = 560,
@@ -58,7 +58,9 @@ export default function BraceletPreview({
       width,
       height,
       overflow: 'hidden',
-      background: compact ? 'transparent' : `radial-gradient(ellipse at center, ${T.ink2} 0%, ${T.ink} 70%)`,
+      background: compact
+        ? 'transparent'
+        : `radial-gradient(ellipse at 40% 50%, #1E1020 0%, #0D0D12 50%, ${T.ink} 100%)`,
       borderRadius: 12,
     }}>
       {!compact && (
@@ -85,19 +87,36 @@ export default function BraceletPreview({
             <line x1="3" y1="0" x2="3" y2="6" stroke="rgba(255,255,255,0.08)" strokeWidth="0.8"/>
           </pattern>
         </defs>
+        {/* Glow sous le cordon */}
+        <path
+          d={`M ${cx - width/2 + 30} ${cy + 6} Q ${cx - 120} ${cy - 10}, ${cx - plateW/2 - 4} ${cy} L ${cx + plateW/2 + 4} ${cy} Q ${cx + 120} ${cy - 10}, ${cx + width/2 - 30} ${cy + 6}`}
+          stroke={cordColor.hex}
+          strokeWidth="22"
+          fill="none"
+          strokeLinecap="round"
+          opacity="0.15"
+        />
         <path
           d={`M ${cx - width/2 + 30} ${cy + 6} Q ${cx - 120} ${cy - 10}, ${cx - plateW/2 - 4} ${cy} L ${cx + plateW/2 + 4} ${cy} Q ${cx + 120} ${cy - 10}, ${cx + width/2 - 30} ${cy + 6}`}
           stroke={`url(#${weaveId})`}
-          strokeWidth="12"
+          strokeWidth="14"
+          fill="none"
+          strokeLinecap="round"
+        />
+        {/* Highlight supérieur */}
+        <path
+          d={`M ${cx - width/2 + 30} ${cy + 4} Q ${cx - 120} ${cy - 12}, ${cx - plateW/2 - 4} ${cy - 2} L ${cx + plateW/2 + 4} ${cy - 2} Q ${cx + 120} ${cy - 12}, ${cx + width/2 - 30} ${cy + 4}`}
+          stroke="rgba(255,255,255,0.12)"
+          strokeWidth="3"
           fill="none"
           strokeLinecap="round"
         />
         <path
           d={`M ${cx - width/2 + 30} ${cy + 8} Q ${cx - 120} ${cy - 8}, ${cx - plateW/2 - 4} ${cy + 2} L ${cx + plateW/2 + 4} ${cy + 2} Q ${cx + 120} ${cy - 8}, ${cx + width/2 - 30} ${cy + 8}`}
-          stroke="rgba(0,0,0,0.5)"
-          strokeWidth="2"
+          stroke="rgba(0,0,0,0.6)"
+          strokeWidth="3"
           fill="none"
-          opacity="0.6"
+          opacity="0.8"
         />
       </svg>
 

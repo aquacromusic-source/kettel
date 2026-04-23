@@ -8,7 +8,7 @@ import BraceletPreview from '../BraceletPreview'
 export default function PersonaliseTeaser() {
   const [text, setText] = useState('VICTOR')
   const [mode, setMode] = useState<'name'|'initials'|'logo'>('name')
-  const [cord, setCord] = useState(CORD_COLORS[0])
+  const [cord, setCord] = useState(CORD_COLORS[7]) // Orange STRAP.
 
   const steps = [
     { n: 1, t: 'Choisis ton sport', d: 'Football, running, padel…' },
