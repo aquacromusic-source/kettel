@@ -5,6 +5,53 @@ import Link from 'next/link'
 import { T } from '../tokens'
 import { IconClose, IconPlus, IconMinus, IconArrow, IconCheck, IconStar } from '../Icons'
 import { useCart } from '@/context/CartContext'
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+
+function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
+  const stripe = useStripe()
+  const elements = useElements()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!stripe || !elements) return
+    setLoading(true)
+    const { error: stripeError } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: window.location.origin + '/success',
+      },
+      redirect: 'if_required',
+    })
+    if (stripeError) {
+      setError(stripeError.message || 'Erreur de paiement')
+      setLoading(false)
+    } else {
+      onSuccess()
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <PaymentElement />
+      {error && (
+        <p style={{ color: '#e53e3e', marginTop: 12, fontSize: 13, fontFamily: T.mono }}>{error}</p>
+      )}
+      <button
+        type="submit"
+        className="strap-btn-primary"
+        style={{ width: '100%', padding: '18px 0', fontSize: 15, marginTop: 20, borderRadius: 2, gap: 10, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        disabled={loading}
+      >
+        {loading ? 'Traitement...' : 'Confirmer le paiement'} <IconArrow size={15}/>
+      </button>
+    </form>
+  )
+}
 
 const SUGGESTIONS = [
   { handle: 'bracelet-kettlebell-gold', title: 'Kettlebell Gold', price: 69, thumb: '/images/products/shopify/bracelet-kettlebell-gold-1.jpg' },
@@ -15,31 +62,50 @@ const SUGGESTIONS = [
 export default function CartPageClient() {
   const { items, removeItem, updateQty, total } = useCart()
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [showCheckout, setShowCheckout] = useState(false)
+  const [clientSecret, setClientSecret] = useState('')
+  const [paymentDone, setPaymentDone] = useState(false)
 
   const handleCheckout = async () => {
     setCheckoutLoading(true)
     try {
-      const res = await fetch('/api/checkout', {
+      const res = await fetch('/api/payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: items.map(item => ({
-            title: item.name,
-            image_url: item.image,
-            price: item.price,
-            qty: item.qty,
-          })),
-        }),
+        body: JSON.stringify({ amount: total }),
       })
-      const { url } = await res.json()
-      window.location.href = url
+      const { clientSecret: secret } = await res.json()
+      setClientSecret(secret)
+      setShowCheckout(true)
     } catch (err) {
-      console.error('Checkout error:', err)
+      console.error('Payment intent error:', err)
+    } finally {
       setCheckoutLoading(false)
     }
   }
+
+  const handlePaymentSuccess = () => {
+    setPaymentDone(true)
+    setShowCheckout(false)
+  }
+
   const FREE_SHIP = 79
   const progress = Math.min(100, (total / FREE_SHIP) * 100)
+
+  if (paymentDone) {
+    return (
+      <div style={{ padding: 'clamp(48px,8vw,100px) clamp(16px,4vw,48px)', textAlign: 'center', minHeight: '50vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontSize: 56, marginBottom: 16 }}>✅</div>
+        <div className="strap-display" style={{ fontSize: 40, color: T.bone, marginBottom: 12 }}>Paiement confirmé !</div>
+        <p style={{ color: T.fog, fontSize: 16, marginBottom: 32, maxWidth: 400 }}>
+          Merci pour ta commande. Tu recevras un email de confirmation très bientôt.
+        </p>
+        <Link href="/" className="strap-btn-primary" style={{ padding: '16px 28px', fontSize: 15, borderRadius: 2, gap: 10 }}>
+          Retour à l&apos;accueil <IconArrow/>
+        </Link>
+      </div>
+    )
+  }
 
   if (items.length === 0) {
     return (
@@ -141,26 +207,54 @@ export default function CartPageClient() {
             <span className="strap-display" style={{ fontSize: 15, color: T.bone }}>Total</span>
             <span className="strap-display" style={{ fontSize: 28, color: T.bone }}>{total}€</span>
           </div>
-          <button
-            className="strap-btn-primary"
-            style={{ width: '100%', padding: '18px 0', fontSize: 15, marginTop: 20, borderRadius: 2, gap: 10, cursor: checkoutLoading ? 'not-allowed' : 'pointer', opacity: checkoutLoading ? 0.7 : 1 }}
-            onClick={handleCheckout}
-            disabled={checkoutLoading}
-          >
-            {checkoutLoading ? 'Redirection...' : 'Commander'} <IconArrow size={15}/>
-          </button>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14, justifyContent: 'center' }}>
-            {['CB Sécurisé', 'PayPal', '3x sans frais'].map(p => (
-              <span key={p} style={{ padding: '4px 10px', border: `1px solid ${T.line}`, borderRadius: 2, fontFamily: T.mono, fontSize: 10, color: T.fog }}>{p}</span>
-            ))}
-          </div>
-          <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {['Paiement 100% sécurisé', 'Retours 30 jours offerts', 'Écrin cadeau inclus dès 49€'].map(r => (
-              <div key={r} style={{ display: 'flex', alignItems: 'center', gap: 8, color: T.fog, fontSize: 13 }}>
-                <IconCheck size={12}/> {r}
+
+          {/* Stripe Elements inline checkout */}
+          {showCheckout && clientSecret ? (
+            <div style={{ marginTop: 20 }}>
+              <div className="strap-mono" style={{ color: T.fog, marginBottom: 16, fontSize: 11 }}>PAIEMENT SÉCURISÉ</div>
+              <Elements
+                stripe={stripePromise}
+                options={{
+                  clientSecret,
+                  appearance: {
+                    theme: 'stripe',
+                    variables: { colorPrimary: '#FF4A1C' },
+                  },
+                }}
+              >
+                <CheckoutForm onSuccess={handlePaymentSuccess} />
+              </Elements>
+              <button
+                style={{ background: 'transparent', border: 'none', color: T.fog, cursor: 'pointer', fontSize: 13, marginTop: 12, display: 'block', width: '100%', textAlign: 'center', fontFamily: T.mono }}
+                onClick={() => setShowCheckout(false)}
+              >
+                ← Annuler
+              </button>
+            </div>
+          ) : (
+            <>
+              <button
+                className="strap-btn-primary"
+                style={{ width: '100%', padding: '18px 0', fontSize: 15, marginTop: 20, borderRadius: 2, gap: 10, cursor: checkoutLoading ? 'not-allowed' : 'pointer', opacity: checkoutLoading ? 0.7 : 1 }}
+                onClick={handleCheckout}
+                disabled={checkoutLoading}
+              >
+                {checkoutLoading ? 'Chargement...' : 'Commander'} <IconArrow size={15}/>
+              </button>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14, justifyContent: 'center' }}>
+                {['CB Sécurisé', 'PayPal', '3x sans frais'].map(p => (
+                  <span key={p} style={{ padding: '4px 10px', border: `1px solid ${T.line}`, borderRadius: 2, fontFamily: T.mono, fontSize: 10, color: T.fog }}>{p}</span>
+                ))}
               </div>
-            ))}
-          </div>
+              <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {['Paiement 100% sécurisé', 'Retours 30 jours offerts', 'Écrin cadeau inclus dès 49€'].map(r => (
+                  <div key={r} style={{ display: 'flex', alignItems: 'center', gap: 8, color: T.fog, fontSize: 13 }}>
+                    <IconCheck size={12}/> {r}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </aside>
       </div>
     </div>
