@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { T } from '../tokens'
@@ -61,28 +62,10 @@ const SUGGESTIONS = [
 
 export default function CartPageClient() {
   const { items, removeItem, updateQty, total } = useCart()
-  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const router = useRouter()
   const [showCheckout, setShowCheckout] = useState(false)
-  const [clientSecret, setClientSecret] = useState('')
+  const [clientSecret] = useState('')
   const [paymentDone, setPaymentDone] = useState(false)
-
-  const handleCheckout = async () => {
-    setCheckoutLoading(true)
-    try {
-      const res = await fetch('/api/payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: total }),
-      })
-      const { clientSecret: secret } = await res.json()
-      setClientSecret(secret)
-      setShowCheckout(true)
-    } catch (err) {
-      console.error('Payment intent error:', err)
-    } finally {
-      setCheckoutLoading(false)
-    }
-  }
 
   const handlePaymentSuccess = () => {
     setPaymentDone(true)
@@ -235,11 +218,10 @@ export default function CartPageClient() {
             <>
               <button
                 className="strap-btn-primary"
-                style={{ width: '100%', padding: '18px 0', fontSize: 15, marginTop: 20, borderRadius: 2, gap: 10, cursor: checkoutLoading ? 'not-allowed' : 'pointer', opacity: checkoutLoading ? 0.7 : 1 }}
-                onClick={handleCheckout}
-                disabled={checkoutLoading}
+                style={{ width: '100%', padding: '18px 0', fontSize: 15, marginTop: 20, borderRadius: 2, gap: 10, cursor: 'pointer' }}
+                onClick={() => router.push('/checkout')}
               >
-                {checkoutLoading ? 'Chargement...' : 'Commander'} <IconArrow size={15}/>
+                Commander <IconArrow size={15}/>
               </button>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14, justifyContent: 'center' }}>
                 {['CB Sécurisé', 'PayPal', '3x sans frais'].map(p => (
