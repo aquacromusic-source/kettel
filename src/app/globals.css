@@ -199,6 +199,7 @@ body {
   position: relative;
   padding: 6px 48px 8px;
   min-height: auto;
+  max-height: 700px;
   overflow: hidden;
   border-bottom: 1px solid var(--line2);
 }
