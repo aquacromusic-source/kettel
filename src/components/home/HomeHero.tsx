@@ -54,7 +54,7 @@ export default function HomeHero() {
         </div>
 
         {/* Hero visual */}
-        <div style={{ position: 'relative', aspectRatio: '16/9', background: T.ink2, borderRadius: 4, overflow: 'hidden', border: `1px solid ${T.line2}` }}>
+        <div style={{ position: 'relative', background: T.ink2, borderRadius: 4, overflow: 'hidden', border: `1px solid ${T.line2}`, maxHeight: 420, aspectRatio: '16/9' }}>
           {/* Vraie photo produit en fond */}
           <img
             src="/images/products/shopify/bracelet-kettlebell-rose-gold-2.jpg"
