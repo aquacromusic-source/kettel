@@ -50,13 +50,22 @@ export default function HomeHero() {
 
         {/* Hero visual */}
         <div style={{ position: 'relative', aspectRatio: '1/1', background: T.ink2, borderRadius: 4, overflow: 'hidden', border: `1px solid ${T.line2}` }}>
+          {/* Vraie photo produit en fond */}
+          <img
+            src="/images/products/shopify/bracelet-kettlebell-rose-gold-2.jpg"
+            alt="Bracelet Kettlebell Rose Gold"
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover', objectPosition: 'center',
+              opacity: 0.9,
+            }}
+          />
+          {/* Overlay dégradé */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: `radial-gradient(ellipse at center, rgba(255,74,28,0.45) 0%, rgba(200,51,15,0.2) 35%, ${T.ink} 65%)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <BraceletPreview text={text} sport="football" width={640} height={420}/>
-          </div>
+            background: `linear-gradient(to bottom, transparent 40%, ${T.ink}dd 100%)`,
+          }}/>
 
           <div style={{
             position: 'absolute', bottom: 18, left: 18, right: 18,
