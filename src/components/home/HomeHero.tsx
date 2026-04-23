@@ -26,10 +26,10 @@ export default function HomeHero() {
           </p>
 
           <div className="strap-hero-ctas">
-            <Link href="/products/bracelet-kettlebell-rose-gold" className="strap-btn-primary strap-hero-cta-primary" style={{ fontSize: 15, gap: 10, borderRadius: 2, display: 'inline-flex', alignItems: 'center' }}>
+            <Link href="/products/bracelet-kettlebell-rose-gold" className="strap-btn-primary strap-hero-cta-primary" style={{ fontSize: 14, padding: '14px 22px', gap: 10, borderRadius: 2, display: 'inline-flex', alignItems: 'center' }}>
               Personnaliser mon bracelet <IconArrow/>
             </Link>
-            <Link href="/#collection" className="strap-btn-ghost strap-hero-cta-ghost" style={{ fontSize: 15, borderRadius: 2 }}>
+            <Link href="/#collection" className="strap-btn-ghost strap-hero-cta-ghost" style={{ fontSize: 14, padding: '14px 20px', borderRadius: 2 }}>
               Voir la collection
             </Link>
           </div>
@@ -49,7 +49,7 @@ export default function HomeHero() {
         </div>
 
         {/* Hero visual */}
-        <div style={{ position: 'relative', aspectRatio: '1/1', background: T.ink2, borderRadius: 4, overflow: 'hidden', border: `1px solid ${T.line2}` }}>
+        <div style={{ position: 'relative', aspectRatio: '4/3', background: T.ink2, borderRadius: 4, overflow: 'hidden', border: `1px solid ${T.line2}` }}>
           {/* Vraie photo produit en fond */}
           <img
             src="/images/products/shopify/bracelet-kettlebell-rose-gold-2.jpg"
