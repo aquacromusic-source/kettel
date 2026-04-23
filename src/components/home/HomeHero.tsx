@@ -10,9 +10,6 @@ export default function HomeHero() {
 
   return (
     <section className="strap-hero-section">
-      {/* Huge backdrop word */}
-      <div aria-hidden className="strap-hero-backdrop">SPORT.STYLE</div>
-
       <div className="strap-hero-grid">
         {/* Text column */}
         <div>
@@ -52,13 +49,13 @@ export default function HomeHero() {
         </div>
 
         {/* Hero visual */}
-        <div style={{ position: 'relative', aspectRatio: '1/0.9', background: T.ink2, borderRadius: 4, overflow: 'hidden', border: `1px solid ${T.line2}` }}>
+        <div style={{ position: 'relative', aspectRatio: '1/1', background: T.ink2, borderRadius: 4, overflow: 'hidden', border: `1px solid ${T.line2}` }}>
           <div style={{
             position: 'absolute', inset: 0,
-            background: `radial-gradient(circle at 40% 40%, rgba(255,74,28,0.35) 0%, rgba(255,74,28,0.08) 40%, ${T.ink} 70%)`,
+            background: `radial-gradient(ellipse at center, rgba(255,74,28,0.45) 0%, rgba(200,51,15,0.2) 35%, ${T.ink} 65%)`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <BraceletPreview text={text} sport="football" width={520} height={340}/>
+            <BraceletPreview text={text} sport="football" width={640} height={420}/>
           </div>
 
           <div style={{
