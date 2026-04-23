@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { T } from '../tokens'
@@ -13,6 +14,30 @@ const SUGGESTIONS = [
 
 export default function CartPageClient() {
   const { items, removeItem, updateQty, total } = useCart()
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+
+  const handleCheckout = async () => {
+    setCheckoutLoading(true)
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            title: item.name,
+            image_url: item.image,
+            price: item.price,
+            qty: item.qty,
+          })),
+        }),
+      })
+      const { url } = await res.json()
+      window.location.href = url
+    } catch (err) {
+      console.error('Checkout error:', err)
+      setCheckoutLoading(false)
+    }
+  }
   const FREE_SHIP = 79
   const progress = Math.min(100, (total / FREE_SHIP) * 100)
 
@@ -116,8 +141,13 @@ export default function CartPageClient() {
             <span className="strap-display" style={{ fontSize: 15, color: T.bone }}>Total</span>
             <span className="strap-display" style={{ fontSize: 28, color: T.bone }}>{total}€</span>
           </div>
-          <button className="strap-btn-primary" style={{ width: '100%', padding: '18px 0', fontSize: 15, marginTop: 20, borderRadius: 2, gap: 10 }}>
-            Passer au paiement <IconArrow size={15}/>
+          <button
+            className="strap-btn-primary"
+            style={{ width: '100%', padding: '18px 0', fontSize: 15, marginTop: 20, borderRadius: 2, gap: 10, cursor: checkoutLoading ? 'not-allowed' : 'pointer', opacity: checkoutLoading ? 0.7 : 1 }}
+            onClick={handleCheckout}
+            disabled={checkoutLoading}
+          >
+            {checkoutLoading ? 'Redirection...' : 'Commander'} <IconArrow size={15}/>
           </button>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14, justifyContent: 'center' }}>
             {['CB Sécurisé', 'PayPal', '3x sans frais'].map(p => (

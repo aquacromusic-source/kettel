@@ -3,7 +3,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { T } from '../tokens'
 import { IconArrow } from '../Icons'
-import BraceletPreview from '../BraceletPreview'
 
 export default function HomeHero() {
   const [text, setText] = useState('ALWAYS ON')
