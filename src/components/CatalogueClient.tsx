@@ -109,13 +109,19 @@ export default function CatalogueClient({ products }: { products: Product[] }) {
             borderRadius: 4, overflow: 'hidden', position: 'relative',
           }}>
             <div style={{ position: 'relative', aspectRatio: '1', background: T.ink, overflow: 'hidden' }}>
-              <Image
-                src={p.thumbImage}
-                alt={p.title}
-                fill
-                style={{ objectFit: 'cover' }}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              />
+              {p.thumbImage ? (
+                <Image
+                  src={p.thumbImage}
+                  alt={p.title}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                />
+              ) : (
+                <div className="strap-placeholder" style={{ width: '100%', height: '100%' }}>
+                  STRAP.
+                </div>
+              )}
               {p.badge && (
                 <span style={{
                   position: 'absolute', top: 12, left: 12, background: T.accent, color: '#fff',
@@ -149,10 +155,12 @@ export default function CatalogueClient({ products }: { products: Product[] }) {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 5, marginTop: 12, alignItems: 'center' }}>
-                {CORD_COLORS.slice(0, 5).map(c => (
+                {CORD_COLORS.slice(0, Math.min(5, p.cordColors.length)).map(c => (
                   <span key={c.id} style={{ width: 12, height: 12, borderRadius: '50%', background: c.hex, border: `1px solid ${T.line}` }}/>
                 ))}
-                <span className="strap-mono" style={{ color: T.fog, marginLeft: 4, fontSize: 9 }}>+{p.cordColors.length}</span>
+                {p.cordColors.length > 5 && (
+                  <span className="strap-mono" style={{ color: T.fog, marginLeft: 4, fontSize: 9 }}>+{p.cordColors.length - 5}</span>
+                )}
               </div>
               <Link href={`/products/${p.handle}`} className="strap-btn-primary" style={{ width: '100%', padding: '12px 0', fontSize: 13, marginTop: 14, borderRadius: 2, gap: 8 }}>
                 Personnaliser <IconArrow size={13}/>

@@ -21,24 +21,28 @@ export default function AnnouncementBar() {
       overflow: 'hidden',
       position: 'relative',
     }}>
+      {/* Two identical sets side by side — animation slides from right to left */}
       <div style={{
         display: 'flex',
-        gap: 48,
+        gap: 0,
         whiteSpace: 'nowrap',
-        animation: 'strap-marquee 40s linear infinite',
+        animation: 'strap-marquee 36s linear infinite',
         width: 'max-content',
+        willChange: 'transform',
       }}>
-        {[0, 1].flatMap((k) =>
-          items.map((item, i) => (
-            <span
-              key={`${k}-${i}`}
-              className="strap-mono"
-              style={{ color: item.accent ? T.accent : item.dim ? T.fog2 : T.fog }}
-            >
-              {item.text}
-            </span>
-          ))
-        )}
+        {[0, 1].map((k) => (
+          <span key={k} style={{ display: 'inline-flex', gap: 48, paddingRight: 48 }}>
+            {items.map((item, i) => (
+              <span
+                key={i}
+                className="strap-mono"
+                style={{ color: item.accent ? T.accent : item.dim ? T.fog2 : T.fog }}
+              >
+                {item.text}
+              </span>
+            ))}
+          </span>
+        ))}
       </div>
     </div>
   )

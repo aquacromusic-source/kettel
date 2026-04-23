@@ -63,7 +63,12 @@ export default function ProductPageClient({ product }: { product: Product }) {
             <div style={{ padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${T.line2}` }}>
               <div style={{ display: 'flex', gap: 6 }}>
                 {['Live', '360°', 'AR'].map((t, i) => (
-                  <span key={t} className="strap-chip" style={{ background: i === 0 ? T.accent : 'transparent', color: i === 0 ? '#fff' : T.fog, borderColor: i === 0 ? T.accent : T.line }}>{t}</span>
+                  <span key={t} className="strap-chip" style={{
+                    background: i === 0 ? T.accent : 'transparent',
+                    color: i === 0 ? '#fff' : T.fog,
+                    borderColor: i === 0 ? T.accent : T.line,
+                    minHeight: 36, minWidth: 44, cursor: 'pointer',
+                  }}>{t}</span>
                 ))}
               </div>
               <span className="strap-mono" style={{ color: T.fog }}>{product.title.toUpperCase()}</span>
@@ -94,8 +99,13 @@ export default function ProductPageClient({ product }: { product: Product }) {
               <button key={i} onClick={() => setActiveImg(i + 1)} style={{
                 flex: 1, aspectRatio: '1', border: `1px solid ${activeImg === i + 1 ? T.accent : T.line}`,
                 background: T.ink2, borderRadius: 2, overflow: 'hidden', cursor: 'pointer', position: 'relative',
+                minHeight: 44,
               }}>
-                <Image src={img} alt="" fill style={{ objectFit: 'cover' }}/>
+                {img ? (
+                  <Image src={img} alt="" fill style={{ objectFit: 'cover' }}/>
+                ) : (
+                  <div className="strap-placeholder" style={{ width: '100%', height: '100%' }}>STRAP.</div>
+                )}
               </button>
             ))}
           </div>

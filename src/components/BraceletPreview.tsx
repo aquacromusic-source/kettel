@@ -190,8 +190,8 @@ export default function BraceletPreview({
             <span className="strap-mono" style={{ color: T.fog2 }}>APERÇU LIVE</span>
           </div>
           <div style={{ position: 'absolute', bottom: 12, right: 16, display: 'flex', gap: 6, alignItems: 'center' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#29C268', animation: 'strap-pulse 1.6s ease-in-out infinite' }}/>
-            <span className="strap-mono" style={{ color: T.fog2 }}>RENDU TEMPS RÉEL</span>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#29C268', flexShrink: 0, animation: 'strap-pulse 1.6s ease-in-out infinite' }}/>
+            <span className="strap-mono strap-live-label" style={{ color: T.fog2 }}>LIVE</span>
           </div>
         </>
       )}

@@ -4196,6 +4196,16 @@ export const PRODUCTS: Product[] = [
   }
 ]
 
+// Helper — exclure les faux-produits (services Shopify)
+export function isServiceProduct(p: Product): boolean {
+  const t = p.title.toLowerCase()
+  return t.includes('gravure') || t.includes('ajouter une') || p.tags.includes('easify_product_options')
+}
+
+export function getCatalogProducts(): Product[] {
+  return PRODUCTS.filter(p => !isServiceProduct(p))
+}
+
 // Helpers
 export function getProductByHandle(handle: string): Product | undefined {
   return PRODUCTS.find(p => p.handle === handle)
@@ -4214,7 +4224,7 @@ export function getProductsByCategory(category: Product['category']): Product[] 
 }
 
 export function getBestSellers(): Product[] {
-  return PRODUCTS.filter(p => p.badge === 'Best-seller' || p.featured).slice(0, 8)
+  return PRODUCTS.filter(p => !isServiceProduct(p) && (p.badge === 'Best-seller' || p.featured)).slice(0, 8)
 }
 
 export const SPORT_MAP: Record<string, string[]> = {

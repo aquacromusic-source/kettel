@@ -12,12 +12,20 @@ export default function CartPageClient() {
 
   if (items.length === 0) {
     return (
-      <div style={{ padding: '80px 48px', textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="strap-display" style={{ fontSize: 48, color: T.bone, marginBottom: 16 }}>Ton panier est vide.</div>
-        <p style={{ color: T.fog, fontSize: 16, marginBottom: 32 }}>Tu n&apos;as pas encore choisi ton bracelet sport.</p>
-        <Link href="/" className="strap-btn-primary" style={{ padding: '18px 32px', fontSize: 15, borderRadius: 2, gap: 10 }}>
-          Découvrir la collection <IconArrow/>
-        </Link>
+      <div style={{ padding: 'clamp(48px,8vw,100px) clamp(16px,4vw,48px)', textAlign: 'center', minHeight: '50vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontSize: 56, marginBottom: 16 }}>&#128142;</div>
+        <div className="strap-display" style={{ fontSize: 40, color: T.bone, marginBottom: 12 }}>Ton panier est vide.</div>
+        <p style={{ color: T.fog, fontSize: 16, marginBottom: 32, maxWidth: 400 }}>
+          Tu n&apos;as pas encore choisi ton bracelet sport. Commence par personnaliser le tien.
+        </p>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Link href="/catalogue" className="strap-btn-primary" style={{ padding: '16px 28px', fontSize: 15, borderRadius: 2, gap: 10 }}>
+            Voir la collection <IconArrow/>
+          </Link>
+          <Link href="/products/bracelet-kettlebell-gold" className="strap-btn-ghost" style={{ padding: '16px 24px', fontSize: 15, borderRadius: 2 }}>
+            Best-seller du moment
+          </Link>
+        </div>
       </div>
     )
   }
