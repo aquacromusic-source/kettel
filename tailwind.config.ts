@@ -9,11 +9,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        ink: '#0B0B0C',
+        ink2: '#131316',
+        ink3: '#1C1C20',
+        bone: '#F2EFE9',
+        fog: '#8A8A90',
+        accent: '#FF4A1C',
+      },
+      fontFamily: {
+        display: ['"Space Grotesk"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
+        body: ['"Inter"', 'sans-serif'],
       },
     },
   },
   plugins: [],
 };
+
 export default config;

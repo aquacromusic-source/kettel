@@ -1,0 +1,103 @@
+'use client'
+import Image from 'next/image'
+import Link from 'next/link'
+import { T } from '../tokens'
+import { IconClose, IconPlus, IconMinus, IconArrow, IconCheck } from '../Icons'
+import { useCart } from '@/context/CartContext'
+
+export default function CartPageClient() {
+  const { items, removeItem, updateQty, total } = useCart()
+  const FREE_SHIP = 79
+  const progress = Math.min(100, (total / FREE_SHIP) * 100)
+
+  if (items.length === 0) {
+    return (
+      <div style={{ padding: '80px 48px', textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="strap-display" style={{ fontSize: 48, color: T.bone, marginBottom: 16 }}>Ton panier est vide.</div>
+        <p style={{ color: T.fog, fontSize: 16, marginBottom: 32 }}>Tu n&apos;as pas encore choisi ton bracelet sport.</p>
+        <Link href="/" className="strap-btn-primary" style={{ padding: '18px 32px', fontSize: 15, borderRadius: 2, gap: 10 }}>
+          Découvrir la collection <IconArrow/>
+        </Link>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ padding: '40px 48px 80px' }}>
+      <h1 className="strap-display" style={{ fontSize: 48, color: T.bone, marginBottom: 8 }}>Ton panier.</h1>
+      <div className="strap-mono" style={{ color: T.fog, marginBottom: 40 }}>{items.reduce((s, i) => s + i.qty, 0)} article{items.reduce((s, i) => s + i.qty, 0) > 1 ? 's' : ''}</div>
+
+      {/* Free shipping bar */}
+      <div style={{ padding: '16px 20px', background: T.ink2, border: `1px solid ${T.line}`, borderRadius: 4, marginBottom: 32 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+          <span style={{ color: T.bone, fontSize: 14 }}>
+            {total >= FREE_SHIP ? '🎉 Livraison offerte débloquée !' : `Plus que ${FREE_SHIP - total}€ pour la livraison offerte`}
+          </span>
+          <span className="strap-mono" style={{ color: T.accent }}>{total}€ / {FREE_SHIP}€</span>
+        </div>
+        <div style={{ height: 4, background: T.ink3, borderRadius: 2, overflow: 'hidden' }}>
+          <div style={{ width: `${progress}%`, height: '100%', background: T.accent, transition: 'width .3s', borderRadius: 2 }}/>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 40, alignItems: 'flex-start' }}>
+        {/* Items */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {items.map(item => (
+            <div key={item.id} style={{ display: 'flex', gap: 20, padding: 20, background: T.ink2, border: `1px solid ${T.line2}`, borderRadius: 4 }}>
+              <div style={{ width: 100, height: 100, background: T.ink, borderRadius: 2, overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+                <Image src={item.image} alt={item.name} fill style={{ objectFit: 'cover' }}/>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                  <div style={{ color: T.bone, fontFamily: T.display, fontWeight: 500, fontSize: 16 }}>{item.name}</div>
+                  <button onClick={() => removeItem(item.id)} style={{ background: 'transparent', border: 'none', color: T.fog, cursor: 'pointer', padding: 4 }}><IconClose size={16}/></button>
+                </div>
+                <div className="strap-mono" style={{ color: T.fog, marginTop: 6 }}>
+                  {item.engravingText && `GRAVURE · "${item.engravingText}" · `}
+                  CORDON {item.cordColor.toUpperCase()}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${T.line}`, borderRadius: 2 }}>
+                    <button onClick={() => updateQty(item.id, item.qty - 1)} style={{ background: 'transparent', border: 'none', color: T.bone, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconMinus size={12}/></button>
+                    <span style={{ color: T.bone, fontFamily: T.mono, fontSize: 13, minWidth: 28, textAlign: 'center' }}>{item.qty}</span>
+                    <button onClick={() => updateQty(item.id, item.qty + 1)} style={{ background: 'transparent', border: 'none', color: T.bone, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconPlus size={12}/></button>
+                  </div>
+                  <div className="strap-display" style={{ fontSize: 20, color: T.bone }}>{item.price * item.qty}€</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Order summary */}
+        <aside style={{ background: T.ink2, border: `1px solid ${T.line}`, borderRadius: 4, padding: 24, position: 'sticky', top: 120 }}>
+          <div className="strap-mono" style={{ color: T.fog, marginBottom: 16 }}>RÉSUMÉ DE COMMANDE</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: T.fog }}><span>Sous-total</span><span>{total}€</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: T.fog }}><span>Livraison</span><span style={{ color: total >= FREE_SHIP ? '#29C268' : T.fog }}>{total >= FREE_SHIP ? 'OFFERTE' : 'Calculée au checkout'}</span></div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 16, paddingTop: 16, borderTop: `1px solid ${T.line2}` }}>
+            <span className="strap-display" style={{ fontSize: 15, color: T.bone }}>Total</span>
+            <span className="strap-display" style={{ fontSize: 28, color: T.bone }}>{total}€</span>
+          </div>
+          <button className="strap-btn-primary" style={{ width: '100%', padding: '18px 0', fontSize: 15, marginTop: 20, borderRadius: 2, gap: 10 }}>
+            Passer au paiement <IconArrow size={15}/>
+          </button>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14, justifyContent: 'center' }}>
+            {['CB Sécurisé', 'PayPal', '3x sans frais'].map(p => (
+              <span key={p} style={{ padding: '4px 10px', border: `1px solid ${T.line}`, borderRadius: 2, fontFamily: T.mono, fontSize: 10, color: T.fog }}>{p}</span>
+            ))}
+          </div>
+          <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {['Paiement 100% sécurisé', 'Retours 30 jours offerts', 'Écrin cadeau inclus dès 49€'].map(r => (
+              <div key={r} style={{ display: 'flex', alignItems: 'center', gap: 8, color: T.fog, fontSize: 13 }}>
+                <IconCheck size={12}/> {r}
+              </div>
+            ))}
+          </div>
+        </aside>
+      </div>
+    </div>
+  )
+}
