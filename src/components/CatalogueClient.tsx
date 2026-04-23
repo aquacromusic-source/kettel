@@ -140,7 +140,7 @@ export default function CatalogueClient({ products }: { products: Product[] }) {
             <div style={{ padding: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                 <div>
-                  <div className="strap-display" style={{ fontSize: 16, color: T.bone }}>{p.title}</div>
+                  <div className="strap-display strap-product-name" style={{ fontSize: 16, color: T.bone }}>{p.title}</div>
                   <div className="strap-mono" style={{ color: T.fog2, marginTop: 2, fontSize: 10 }}>{p.subtitle}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, color: T.accent }}>
                     {Array.from({ length: 5 }).map((_, i) => <IconStar key={i} size={11}/>)}

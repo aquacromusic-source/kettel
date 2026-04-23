@@ -2,8 +2,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { T } from '../tokens'
-import { IconClose, IconPlus, IconMinus, IconArrow, IconCheck } from '../Icons'
+import { IconClose, IconPlus, IconMinus, IconArrow, IconCheck, IconStar } from '../Icons'
 import { useCart } from '@/context/CartContext'
+
+const SUGGESTIONS = [
+  { handle: 'bracelet-kettlebell-gold', title: 'Kettlebell Gold', price: 69, thumb: '/images/products/shopify/bracelet-kettlebell-gold-1.jpg' },
+  { handle: 'bracelet-golf-silver', title: 'Golf Platine', price: 69, thumb: '/images/products/shopify/bracelet-golf-silver-1.jpg' },
+  { handle: 'bracelet-football-silver', title: 'Football Argent', price: 49, thumb: '/images/products/shopify/bracelet-football-silver-1.jpg' },
+]
 
 export default function CartPageClient() {
   const { items, removeItem, updateQty, total } = useCart()
@@ -25,6 +31,27 @@ export default function CartPageClient() {
           <Link href="/products/bracelet-kettlebell-gold" className="strap-btn-ghost" style={{ padding: '16px 24px', fontSize: 15, borderRadius: 2 }}>
             Best-seller du moment
           </Link>
+        </div>
+
+        {/* Suggestions */}
+        <div style={{ marginTop: 60, width: '100%', maxWidth: 720 }}>
+          <div className="strap-mono" style={{ color: T.fog, marginBottom: 20 }}>§ LES PLUS PORTÉS</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            {SUGGESTIONS.map(s => (
+              <Link key={s.handle} href={`/products/${s.handle}`} style={{ textDecoration: 'none', background: T.ink2, border: `1px solid ${T.line2}`, borderRadius: 4, overflow: 'hidden', display: 'block' }}>
+                <div style={{ position: 'relative', aspectRatio: '1', background: T.ink }}>
+                  <Image src={s.thumb} alt={s.title} fill style={{ objectFit: 'cover' }}/>
+                </div>
+                <div style={{ padding: 12 }}>
+                  <div className="strap-display" style={{ fontSize: 14, color: T.bone }}>{s.title}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4, color: T.accent }}>
+                    {Array.from({ length: 5 }).map((_, i) => <IconStar key={i} size={9}/>)}
+                  </div>
+                  <div className="strap-display" style={{ fontSize: 16, color: T.bone, marginTop: 6 }}>{s.price}€</div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     )
