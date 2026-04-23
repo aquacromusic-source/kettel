@@ -21,7 +21,7 @@ export default function HomeHero() {
             Porte ton sport.<br/>
             <span style={{ color: T.fog2 }}>Chaque</span> <em style={{ fontStyle: 'italic', fontWeight: 400 }}>jour.</em>
           </h1>
-          <p style={{ fontSize: 18, lineHeight: 1.5, color: T.fog, maxWidth: 460, marginTop: 28 }}>
+          <p style={{ fontSize: 15, lineHeight: 1.4, color: T.fog, maxWidth: 440, marginTop: 12 }}>
             Un bracelet sport pensé pour se porter du terrain au bureau. Pendentif à ton sport, cordon interchangeable, résistant à l&apos;eau.
           </p>
 
@@ -41,8 +41,8 @@ export default function HomeHero() {
               { k: '4.9/5', v: '+8 200 avis' },
             ].map(s => (
               <div key={s.k}>
-                <div className="strap-display" style={{ fontSize: 26, color: T.bone }}>{s.k}</div>
-                <div className="strap-mono" style={{ color: T.fog, marginTop: 4 }}>{s.v}</div>
+                <div className="strap-display" style={{ fontSize: 20, color: T.bone }}>{s.k}</div>
+                <div className="strap-mono" style={{ color: T.fog, marginTop: 2, fontSize: 11 }}>{s.v}</div>
               </div>
             ))}
           </div>
