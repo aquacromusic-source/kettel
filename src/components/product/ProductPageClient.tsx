@@ -14,7 +14,7 @@ export default function ProductPageClient({ product }: { product: Product }) {
   const [sport, setSport] = useState(product.sport || 'football')
   const [mode, setMode] = useState<'name'|'initials'|'logo'>('name')
   const [text, setText] = useState('')
-  const [cord, setCord] = useState(CORD_COLORS[0])
+  const [cord, setCord] = useState(CORD_COLORS[7]) // Orange STRAP. par défaut — visible
   const [finish, setFinish] = useState(FINISHES[0])
   const [font, setFont] = useState(GRAV_FONTS[0])
   const [extras, setExtras] = useState({ gift: false, message: false, extraCord: false })
