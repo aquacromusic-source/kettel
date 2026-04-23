@@ -10,16 +10,16 @@ export default function ReassuranceStrip() {
     { t: 'Paiement sécurisé', d: '3x sans frais · CB, PayPal' },
   ]
   return (
-    <section style={{ padding: '14px 48px', borderBottom: `1px solid ${T.line2}` }}>
+    <section style={{ padding: '10px 48px', borderBottom: `1px solid ${T.line2}` }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 40 }}>
         {items.map(it => (
           <div key={it.t} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: T.ink2, border: `1px solid ${T.line}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, flexShrink: 0 }}>
+            <div style={{ width: 24, height: 24, borderRadius: '50%', background: T.ink2, border: `1px solid ${T.line}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, flexShrink: 0 }}>
               <IconCheck/>
             </div>
             <div>
-              <div style={{ color: T.bone, fontFamily: T.display, fontWeight: 500, fontSize: 14 }}>{it.t}</div>
-              <div className="strap-mono" style={{ color: T.fog, marginTop: 2 }}>{it.d}</div>
+              <div style={{ color: T.bone, fontFamily: T.display, fontWeight: 500, fontSize: 12 }}>{it.t}</div>
+              <div className="strap-mono" style={{ color: T.fog, marginTop: 0 }}>{it.d}</div>
             </div>
           </div>
         ))}
