@@ -197,7 +197,7 @@ body {
 /* Hero section */
 .strap-hero-section {
   position: relative;
-  padding: 24px 48px 28px;
+  padding: 16px 48px 20px;
   min-height: auto;
   overflow: hidden;
   border-bottom: 1px solid var(--line2);
@@ -220,12 +220,12 @@ body {
 .strap-hero-grid {
   display: grid;
   grid-template-columns: 1fr 1.1fr;
-  gap: 40px;
+  gap: 28px;
   align-items: center;
   position: relative;
 }
 .strap-hero-title {
-  font-size: 48px;
+  font-size: 42px;
   line-height: 1.05;
 }
 .strap-hero-ctas {
@@ -320,7 +320,7 @@ body {
     font-size: 72px;
   }
   .strap-section-title {
-    font-size: 48px;
+    font-size: 42px;
   }
   .strap-cart-grid {
     grid-template-columns: 1fr 320px;

@@ -10,7 +10,7 @@ export default function ReassuranceStrip() {
     { t: 'Paiement sécurisé', d: '3x sans frais · CB, PayPal' },
   ]
   return (
-    <section style={{ padding: '20px 48px', borderBottom: `1px solid ${T.line2}` }}>
+    <section style={{ padding: '14px 48px', borderBottom: `1px solid ${T.line2}` }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 40 }}>
         {items.map(it => (
           <div key={it.t} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
