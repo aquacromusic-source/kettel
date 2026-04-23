@@ -162,6 +162,286 @@ body {
   to { transform: rotate(360deg); }
 }
 
+/* ─── RESPONSIVE LAYOUT ────────────────────────────────────────── */
+
+/* NavBar */
+.strap-nav-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(11,11,12,0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 48px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+.strap-nav-links {
+  display: flex;
+  gap: 28px;
+  flex: 1;
+}
+.strap-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.strap-nav-mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Hero section */
+.strap-hero-section {
+  position: relative;
+  padding: 80px 48px 100px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line2);
+}
+.strap-hero-backdrop {
+  position: absolute;
+  left: -20px;
+  right: 0;
+  bottom: -40px;
+  pointer-events: none;
+  font-family: var(--font-display);
+  font-size: 380px;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  color: rgba(255,255,255,0.035);
+  line-height: 0.8;
+  white-space: nowrap;
+  user-select: none;
+}
+.strap-hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+}
+.strap-hero-title {
+  font-size: 100px;
+}
+.strap-hero-ctas {
+  display: flex;
+  gap: 12px;
+  margin-top: 36px;
+}
+.strap-hero-cta-primary {
+  padding: 18px 28px;
+}
+.strap-hero-cta-ghost {
+  padding: 18px 24px;
+}
+.strap-hero-stats {
+  display: flex;
+  gap: 28px;
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line2);
+}
+
+/* Section headers */
+.strap-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.strap-section-title {
+  font-size: 64px;
+}
+
+/* Product grid */
+.strap-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* Product page */
+.strap-product-page-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 60px;
+}
+.strap-product-preview-sticky {
+  position: sticky;
+  top: 100px;
+  align-self: flex-start;
+}
+
+/* Gift band */
+.strap-gift-band {
+  padding: 60px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.strap-gift-title {
+  font-size: 44px;
+}
+.strap-gift-btn {
+  padding: 18px 28px;
+  flex-shrink: 0;
+}
+
+/* Sport grid inside product configurator */
+.strap-sport-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+/* Cart */
+.strap-cart-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 40px;
+}
+.strap-cart-summary {
+  position: sticky;
+  top: 120px;
+}
+
+/* ─── TABLET (≤ 1024px) ─────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .strap-product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .strap-hero-title {
+    font-size: 72px;
+  }
+  .strap-section-title {
+    font-size: 48px;
+  }
+  .strap-cart-grid {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+/* ─── MOBILE (≤ 768px) ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* NavBar */
+  .strap-nav-header {
+    padding: 16px 20px;
+    gap: 0;
+    justify-content: space-between;
+  }
+  .strap-nav-links {
+    display: none;
+  }
+  .strap-nav-actions {
+    display: none;
+  }
+  .strap-nav-mobile-actions {
+    display: flex;
+  }
+
+  /* Hero */
+  .strap-hero-section {
+    padding: 40px 20px 60px;
+  }
+  .strap-hero-backdrop {
+    font-size: 120px;
+    bottom: 0;
+  }
+  .strap-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .strap-hero-title {
+    font-size: 52px;
+  }
+  .strap-hero-ctas {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .strap-hero-cta-primary,
+  .strap-hero-cta-ghost {
+    width: 100%;
+    justify-content: center;
+    padding: 16px 20px;
+  }
+  .strap-hero-stats {
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* Section header */
+  .strap-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .strap-section-title {
+    font-size: 36px;
+  }
+
+  /* Product grid */
+  .strap-product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Product page */
+  .strap-product-page-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .strap-product-preview-sticky {
+    position: static;
+  }
+
+  /* Gift band */
+  .strap-gift-band {
+    padding: 40px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .strap-gift-title {
+    font-size: 28px;
+  }
+  .strap-gift-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 16px 20px;
+  }
+
+  /* Sport grid */
+  .strap-sport-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Cart */
+  .strap-cart-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .strap-cart-summary {
+    position: static;
+  }
+}
+
+/* ─── SMALL MOBILE (≤ 480px) ────────────────────────────────────── */
+@media (max-width: 480px) {
+  .strap-hero-title {
+    font-size: 40px;
+  }
+  .strap-product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .strap-sport-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @keyframes strap-shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }

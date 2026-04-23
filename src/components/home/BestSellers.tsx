@@ -7,21 +7,21 @@ import type { Product } from '@/lib/products'
 
 export default function BestSellers({ products }: { products: Product[] }) {
   return (
-    <section id="collection" style={{ padding: '100px 48px', borderBottom: `1px solid ${T.line2}` }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 48 }}>
+    <section id="collection" style={{ padding: 'clamp(48px, 6vw, 100px) clamp(16px, 4vw, 48px)', borderBottom: `1px solid ${T.line2}` }}>
+      <div className="strap-section-header" style={{ marginBottom: 48 }}>
         <div>
           <span className="strap-eyebrow">§ 04 — Les plus portés</span>
-          <h2 className="strap-display" style={{ fontSize: 64, color: T.bone, margin: '12px 0 0' }}>
+          <h2 className="strap-display strap-section-title" style={{ color: T.bone, margin: '12px 0 0' }}>
             Les best-sellers.
           </h2>
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div className="strap-section-nav" style={{ display: 'flex', gap: 6 }}>
           <button className="strap-btn-ghost" style={{ width: 44, height: 44, borderRadius: '50%' }}><IconChevron dir="left"/></button>
           <button className="strap-btn-ghost" style={{ width: 44, height: 44, borderRadius: '50%' }}><IconChevron dir="right"/></button>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+      <div className="strap-product-grid">
         {products.map(p => (
           <article key={p.id} style={{
             background: T.ink2, border: `1px solid ${T.line2}`,
@@ -33,7 +33,7 @@ export default function BestSellers({ products }: { products: Product[] }) {
                 alt={p.title}
                 fill
                 style={{ objectFit: 'cover' }}
-                sizes="(max-width: 768px) 50vw, 25vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               />
               {p.badge && (
                 <span style={{

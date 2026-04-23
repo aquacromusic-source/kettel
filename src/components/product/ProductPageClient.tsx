@@ -42,7 +42,7 @@ export default function ProductPageClient({ product }: { product: Product }) {
   return (
     <>
       {/* Breadcrumb */}
-      <div style={{ padding: '20px 48px', borderBottom: `1px solid ${T.line2}`, display: 'flex', gap: 10 }}>
+      <div style={{ padding: 'clamp(12px,3vw,20px) clamp(16px,4vw,48px)', borderBottom: `1px solid ${T.line2}`, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
         {['Accueil', 'Bracelets', product.subtitle.split(' · ')[0], product.title].map((c, i, arr) => (
           <span key={c} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {i < arr.length - 1 ? (
@@ -56,9 +56,9 @@ export default function ProductPageClient({ product }: { product: Product }) {
       </div>
 
       {/* Main grid */}
-      <div style={{ padding: '40px 48px 80px', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 60 }}>
+      <div className="strap-product-page-grid" style={{ padding: 'clamp(16px,4vw,40px) clamp(16px,4vw,48px) clamp(40px,6vw,80px)' }}>
         {/* Left: sticky preview */}
-        <div style={{ position: 'sticky', top: 100, alignSelf: 'flex-start' }}>
+        <div className="strap-product-preview-sticky">
           <div style={{ background: T.ink2, border: `1px solid ${T.line2}`, borderRadius: 4, overflow: 'hidden', aspectRatio: '1' }}>
             <div style={{ padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${T.line2}` }}>
               <div style={{ display: 'flex', gap: 6 }}>
@@ -248,12 +248,12 @@ export default function ProductPageClient({ product }: { product: Product }) {
       </div>
 
       {/* Gift band */}
-      <section style={{ padding: '60px 48px', background: T.accent, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 40 }}>
+      <section className="strap-gift-band" style={{ background: T.accent }}>
         <div>
           <span className="strap-mono" style={{ color: 'rgba(255,255,255,0.8)' }}>PRÊT À OFFRIR</span>
-          <h2 className="strap-display" style={{ fontSize: 44, color: '#fff', margin: '8px 0 0' }}>Une idée cadeau qu&apos;on n&apos;oublie pas.</h2>
+          <h2 className="strap-display strap-gift-title" style={{ color: '#fff', margin: '8px 0 0' }}>Une idée cadeau qu&apos;on n&apos;oublie pas.</h2>
         </div>
-        <button style={{ background: '#fff', color: T.ink, padding: '18px 28px', border: 'none', fontFamily: T.display, fontWeight: 600, fontSize: 15, cursor: 'pointer', borderRadius: 2, display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+        <button className="strap-gift-btn" style={{ background: '#fff', color: T.ink, border: 'none', fontFamily: T.display, fontWeight: 600, fontSize: 15, cursor: 'pointer', borderRadius: 2, display: 'inline-flex', alignItems: 'center', gap: 10 }}>
           Ajouter l&apos;écrin cadeau <IconArrow/>
         </button>
       </section>
@@ -267,7 +267,7 @@ function Step1({ sport, setSport }: { sport: string, setSport: (s: string) => vo
     <div>
       <div className="strap-display" style={{ fontSize: 22, color: T.bone, marginBottom: 6 }}>Quel est ton terrain ?</div>
       <p style={{ color: T.fog, fontSize: 13, marginBottom: 18 }}>Le sport qui sera représenté sur ton bracelet.</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+      <div className="strap-sport-grid">
         {SPORTS.map(s => (
           <button key={s.id} onClick={() => setSport(s.id)} style={{
             background: sport === s.id ? T.accent : T.ink,

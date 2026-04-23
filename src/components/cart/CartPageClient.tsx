@@ -23,7 +23,7 @@ export default function CartPageClient() {
   }
 
   return (
-    <div style={{ padding: '40px 48px 80px' }}>
+    <div style={{ padding: 'clamp(16px,4vw,40px) clamp(16px,4vw,48px) clamp(40px,6vw,80px)' }}>
       <h1 className="strap-display" style={{ fontSize: 48, color: T.bone, marginBottom: 8 }}>Ton panier.</h1>
       <div className="strap-mono" style={{ color: T.fog, marginBottom: 40 }}>{items.reduce((s, i) => s + i.qty, 0)} article{items.reduce((s, i) => s + i.qty, 0) > 1 ? 's' : ''}</div>
 
@@ -40,7 +40,7 @@ export default function CartPageClient() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 40, alignItems: 'flex-start' }}>
+      <div className="strap-cart-grid" style={{ alignItems: 'flex-start' }}>
         {/* Items */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {items.map(item => (
@@ -71,7 +71,7 @@ export default function CartPageClient() {
         </div>
 
         {/* Order summary */}
-        <aside style={{ background: T.ink2, border: `1px solid ${T.line}`, borderRadius: 4, padding: 24, position: 'sticky', top: 120 }}>
+        <aside style={{ background: T.ink2, border: `1px solid ${T.line}`, borderRadius: 4, padding: 24 }} className="strap-cart-summary">
           <div className="strap-mono" style={{ color: T.fog, marginBottom: 16 }}>RÉSUMÉ DE COMMANDE</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', color: T.fog }}><span>Sous-total</span><span>{total}€</span></div>
