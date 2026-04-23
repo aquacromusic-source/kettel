@@ -75,9 +75,9 @@ export default function HomeHero() {
           <div style={{
             position: 'absolute', bottom: 18, left: 18, right: 18,
             background: 'rgba(11,11,12,0.82)', backdropFilter: 'blur(10px)',
-            border: `1px solid ${T.line}`, borderRadius: 2, padding: 14,
+            border: `1px solid ${T.line}`, borderRadius: 2, padding: '8px 12px',
           }}>
-            <div className="strap-mono" style={{ color: T.fog, marginBottom: 6 }}>APERÇU GRAVURE EN DIRECT</div>
+            <div className="strap-mono" style={{ color: T.fog, marginBottom: 3 }}>APERÇU GRAVURE EN DIRECT</div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <input
                 value={text}
