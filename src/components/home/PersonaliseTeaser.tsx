@@ -46,7 +46,7 @@ export default function PersonaliseTeaser() {
               </div>
             ))}
           </div>
-          <Link href="/products/le-terrain-football" className="strap-btn-primary" style={{ padding: '18px 28px', fontSize: 15, marginTop: 40, display: 'inline-flex', alignItems: 'center', gap: 10, borderRadius: 2 }}>
+          <Link href="/products/bracelet-kettlebell-rose-gold" className="strap-btn-primary" style={{ padding: '18px 28px', fontSize: 15, marginTop: 40, display: 'inline-flex', alignItems: 'center', gap: 10, borderRadius: 2 }}>
             Commencer ma perso. <IconArrow/>
           </Link>
         </div>

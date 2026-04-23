@@ -6,9 +6,9 @@ import { IconSearch, IconHeart, IconCart } from './Icons'
 import { useCart } from '@/context/CartContext'
 
 const NAV_LINKS = [
-  { label: 'Bracelets', href: '/products/le-terrain-football' },
+  { label: 'Bracelets', href: '/catalogue' },
   { label: 'Par sport', href: '/#sports' },
-  { label: 'Personnaliser', href: '/products/le-terrain-football' },
+  { label: 'Personnaliser', href: '/products/bracelet-kettlebell-rose-gold' },
   { label: 'Idées cadeau', href: '/#gift' },
   { label: 'Journal', href: '/#' },
 ]

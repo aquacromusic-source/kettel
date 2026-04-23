@@ -5,17 +5,17 @@ import { T, SPORTS } from '../tokens'
 import { SportIcon, IconPlus, IconArrow } from '../Icons'
 
 const SPORT_LINKS: Record<string, string> = {
-  football: '/products/le-terrain-football',
+  football: '/products/bracelet-football-f8-plaque-or',
   basketball: '/products/le-ballon-basketball',
   tennis: '/products/la-raquette-tennis',
-  running: '/products/le-terrain-football',
+  running: '/products/bracelet-running-woman-silver',
   muscu: '/products/la-fonte-kettlebell-inox',
-  cyclisme: '/products/le-terrain-football',
+  cyclisme: '/products/bracelet-velo-maillon-silver',
   boxe: '/products/le-gant-boxe',
-  ski: '/products/le-terrain-football',
-  padel: '/products/le-terrain-football',
+  ski: '/products/bracelet-kettlebell-rose-gold',
+  padel: '/products/bracelet-ping-pong-argente',
   golf: '/products/le-green-golf-platine',
-  natation: '/products/le-terrain-football',
+  natation: '/products/bracelet-natation-argente',
 }
 
 export default function ChooseSport() {
@@ -29,7 +29,7 @@ export default function ChooseSport() {
             Choisis ton sport. <span style={{ color: T.fog2 }}>On trouve le bracelet.</span>
           </h2>
         </div>
-        <Link href="/products/le-terrain-football" className="strap-link" style={{ fontSize: 13, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Link href="/catalogue" className="strap-link" style={{ fontSize: 13, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 8 }}>
           Voir tout <IconArrow size={14}/>
         </Link>
       </div>
@@ -38,7 +38,7 @@ export default function ChooseSport() {
         {SPORTS.map(s => (
           <Link
             key={s.id}
-            href={SPORT_LINKS[s.id] || '/products/le-terrain-football'}
+            href={SPORT_LINKS[s.id] || '/catalogue'}
             onMouseEnter={() => setHovered(s.id)}
             style={{
               background: hovered === s.id ? T.ink2 : T.ink,

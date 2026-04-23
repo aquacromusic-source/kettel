@@ -34,7 +34,7 @@ export default function GiftSection() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 12, marginTop: 40 }}>
-            <Link href="/products/le-terrain-football" style={{
+            <Link href="/products/bracelet-kettlebell-rose-gold" style={{
               background: '#fff', color: T.ink, padding: '18px 28px', fontSize: 15,
               textDecoration: 'none', fontFamily: T.display, fontWeight: 600, borderRadius: 2,
               display: 'inline-flex', alignItems: 'center', gap: 10,

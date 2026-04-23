@@ -29,7 +29,7 @@ export default function HomeHero() {
           </p>
 
           <div className="strap-hero-ctas">
-            <Link href="/products/le-terrain-football" className="strap-btn-primary strap-hero-cta-primary" style={{ fontSize: 15, gap: 10, borderRadius: 2, display: 'inline-flex', alignItems: 'center' }}>
+            <Link href="/products/bracelet-kettlebell-rose-gold" className="strap-btn-primary strap-hero-cta-primary" style={{ fontSize: 15, gap: 10, borderRadius: 2, display: 'inline-flex', alignItems: 'center' }}>
               Personnaliser mon bracelet <IconArrow/>
             </Link>
             <Link href="/#collection" className="strap-btn-ghost strap-hero-cta-ghost" style={{ fontSize: 15, borderRadius: 2 }}>
