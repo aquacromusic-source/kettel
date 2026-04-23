@@ -34,15 +34,20 @@ export default function HomeHero() {
             </Link>
           </div>
 
-          <div className="strap-hero-stats">
+          {/* Réassurance inline */}
+          <div style={{ display: 'flex', gap: 20, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${T.line2}`, flexWrap: 'wrap' }}>
             {[
-              { k: '48h', v: 'Gravure & expédition' },
-              { k: '30 j.', v: 'Retours offerts' },
-              { k: '4.9/5', v: '+8 200 avis' },
-            ].map(s => (
-              <div key={s.k}>
-                <div className="strap-display" style={{ fontSize: 20, color: T.bone }}>{s.k}</div>
-                <div className="strap-mono" style={{ color: T.fog, marginTop: 2, fontSize: 11 }}>{s.v}</div>
+              { t: 'Livraison offerte', d: 'dès 59€' },
+              { t: 'Pendentif garanti', d: 'Or, Argent, Rose Gold' },
+              { t: 'Retours 30 jours', d: 'Gratuits' },
+              { t: 'Paiement sécurisé', d: '3x sans frais' },
+            ].map(it => (
+              <div key={it.t} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ color: T.accent, fontSize: 14 }}>✓</span>
+                <div>
+                  <div style={{ color: T.bone, fontSize: 12, fontWeight: 600, fontFamily: T.display }}>{it.t}</div>
+                  <div className="strap-mono" style={{ color: T.fog, fontSize: 10 }}>{it.d}</div>
+                </div>
               </div>
             ))}
           </div>

@@ -19,7 +19,6 @@ export default function HomePage() {
       <AnnouncementBar />
       <NavBar />
       <HomeHero />
-      <ReassuranceStrip />
       <Benefits />
       <ChooseSport />
       <PersonaliseTeaser />
