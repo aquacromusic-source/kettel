@@ -8,6 +8,7 @@ import { SportIcon } from '../Icons'
 import BraceletPreview from '../BraceletPreview'
 import { useCart } from '@/context/CartContext'
 import type { Product } from '@/lib/products'
+import * as gtag from '@/lib/gtag'
 
 export default function ProductPageClient({ product }: { product: Product }) {
   const [step, setStep] = useState(1)
@@ -36,6 +37,12 @@ export default function ProductPageClient({ product }: { product: Product }) {
       finish: finish.name,
       price: total,
       image: product.thumbImage,
+    })
+    gtag.event({
+      action: 'add_to_cart',
+      currency: 'EUR',
+      value: total,
+      items: [{ item_id: product.id, item_name: product.title, price: total, quantity: 1 }],
     })
   }
 

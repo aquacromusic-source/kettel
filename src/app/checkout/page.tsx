@@ -7,6 +7,7 @@ import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { useCart } from '@/context/CartContext'
 import { T } from '@/components/tokens'
+import * as gtag from '@/lib/gtag'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -164,6 +165,12 @@ export default function CheckoutPage() {
       const { clientSecret: secret } = await res.json()
       setClientSecret(secret)
       setStep('payment')
+      gtag.event({
+        action: 'begin_checkout',
+        currency: 'EUR',
+        value: grandTotal,
+        items: items.map(i => ({ item_id: i.productId, item_name: i.name, price: i.price, quantity: i.qty })),
+      })
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
       console.error(err)
@@ -173,6 +180,14 @@ export default function CheckoutPage() {
   }
 
   const handleSuccess = () => {
+    gtag.event({
+      action: 'purchase',
+      currency: 'EUR',
+      value: grandTotal,
+      transaction_id: `STRAP-${Date.now()}`,
+      shipping: shippingCost,
+      items: items.map(i => ({ item_id: i.productId, item_name: i.name, price: i.price, quantity: i.qty })),
+    })
     clearCart()
     setStep('success')
     window.scrollTo({ top: 0, behavior: 'smooth' })

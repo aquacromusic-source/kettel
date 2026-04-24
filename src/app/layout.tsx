@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { CartProvider } from '@/context/CartContext'
+import GoogleAnalytics from '@/components/GoogleAnalytics'
 
 export const metadata: Metadata = {
   title: 'STRAP. — Bracelets sport personnalisés',
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body>
+        <GoogleAnalytics />
         <CartProvider>
           {children}
         </CartProvider>
