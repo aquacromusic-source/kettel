@@ -474,10 +474,19 @@ export default function CheckoutPage() {
     e.preventDefault()
     setLoading(true)
     try {
+      const cartItemsPayload = items.map(i => ({ id: i.productId, name: i.name, qty: i.qty, cordColor: i.cordColor, engravingText: i.engravingText, price: i.price }))
+      const shippingAddress = { firstName, lastName, address, city, zip, country }
       const res = await fetch('/api/payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: grandTotal }),
+        body: JSON.stringify({
+          amount: grandTotal,
+          email: email || undefined,
+          cartItems: JSON.stringify(cartItemsPayload),
+          shippingAddress: JSON.stringify(shippingAddress),
+          shipping,
+          discount,
+        }),
       })
       const { clientSecret: secret } = await res.json()
       setClientSecret(secret)
