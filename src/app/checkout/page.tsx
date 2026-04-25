@@ -1,21 +1,119 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { loadStripe } from '@stripe/stripe-js'
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import { loadStripe, type PaymentRequest } from '@stripe/stripe-js'
+import {
+  Elements,
+  PaymentElement,
+  PaymentRequestButtonElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js'
 import { useCart } from '@/context/CartContext'
 import { T } from '@/components/tokens'
 import * as gtag from '@/lib/gtag'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
-function PaymentForm({ total, onSuccess }: { total: number; onSuccess: () => void }) {
+/* ── Country code mapping ── */
+const COUNTRY_CODE_MAP: Record<string, string> = {
+  France: 'FR',
+  Belgique: 'BE',
+  Suisse: 'CH',
+  Luxembourg: 'LU',
+  Canada: 'CA',
+  Allemagne: 'DE',
+  Espagne: 'ES',
+  Italie: 'IT',
+  Portugal: 'PT',
+  'Pays-Bas': 'NL',
+  Autre: 'FR',
+}
+
+/* ── Reverse mapping (code -> country name) for Google Places autofill ── */
+const CODE_COUNTRY_MAP: Record<string, string> = Object.fromEntries(
+  Object.entries(COUNTRY_CODE_MAP).map(([k, v]) => [v, k])
+)
+
+/* ── Shipping rate type from API ── */
+interface ShippingRate {
+  id: string
+  carrier: string
+  label: string
+  price: number
+  delivery: string
+}
+
+/* ── PaymentForm with Apple Pay / Google Pay ── */
+function PaymentForm({ total, onSuccess, clientSecret }: { total: number; onSuccess: () => void; clientSecret: string }) {
   const stripe = useStripe()
   const elements = useElements()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [paymentRequest, setPaymentRequest] = useState<PaymentRequest | null>(null)
+  const [canPay, setCanPay] = useState(false)
+
+  /* Apple Pay / Google Pay setup */
+  useEffect(() => {
+    if (!stripe) return
+
+    const pr = stripe.paymentRequest({
+      country: 'FR',
+      currency: 'eur',
+      total: {
+        label: 'STRAP.',
+        amount: Math.round(total * 100),
+      },
+      requestPayerName: true,
+      requestPayerEmail: true,
+    })
+
+    pr.canMakePayment().then(result => {
+      if (result) {
+        setPaymentRequest(pr)
+        setCanPay(true)
+      }
+    })
+
+    pr.on('paymentmethod', async (ev) => {
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        { payment_method: ev.paymentMethod.id },
+        { handleActions: false }
+      )
+
+      if (confirmError) {
+        ev.complete('fail')
+        setError(confirmError.message || 'Erreur de paiement')
+      } else {
+        ev.complete('success')
+        if (paymentIntent?.status === 'requires_action') {
+          const { error: actionError } = await stripe.confirmCardPayment(clientSecret)
+          if (actionError) {
+            setError(actionError.message || 'Erreur de paiement')
+          } else {
+            onSuccess()
+          }
+        } else {
+          onSuccess()
+        }
+      }
+    })
+  }, [stripe, total, clientSecret, onSuccess])
+
+  /* Update payment request amount when total changes */
+  useEffect(() => {
+    if (paymentRequest) {
+      paymentRequest.update({
+        total: {
+          label: 'STRAP.',
+          amount: Math.round(total * 100),
+        },
+      })
+    }
+  }, [paymentRequest, total])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,36 +133,59 @@ function PaymentForm({ total, onSuccess }: { total: number; onSuccess: () => voi
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <PaymentElement options={{ layout: 'tabs' }} />
-      {error && (
-        <p style={{ color: '#e53e3e', marginTop: 8, fontSize: 13, fontFamily: T.mono }}>{error}</p>
+    <div>
+      {/* Apple Pay / Google Pay button */}
+      {canPay && paymentRequest && (
+        <>
+          <PaymentRequestButtonElement
+            options={{ paymentRequest, style: { paymentRequestButton: { height: '48px' } } }}
+          />
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              margin: '16px 0',
+            }}
+          >
+            <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
+            <span style={{ fontFamily: T.mono, fontSize: 12, color: '#9CA3AF' }}>ou</span>
+            <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
+          </div>
+        </>
       )}
-      <button
-        type="submit"
-        disabled={loading || !stripe}
-        style={{
-          width: '100%',
-          marginTop: 20,
-          padding: '16px 0',
-          background: loading || !stripe ? '#ccc' : T.accent,
-          color: '#fff',
-          border: 'none',
-          borderRadius: 4,
-          fontSize: 15,
-          fontFamily: T.display,
-          fontWeight: 600,
-          cursor: loading || !stripe ? 'not-allowed' : 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          transition: 'background 0.2s',
-        }}
-      >
-        {loading ? 'Traitement...' : `Payer ${total.toFixed(2)}€`}
-      </button>
-    </form>
+
+      <form onSubmit={handleSubmit}>
+        <PaymentElement options={{ layout: 'tabs' }} />
+        {error && (
+          <p style={{ color: '#e53e3e', marginTop: 8, fontSize: 13, fontFamily: T.mono }}>{error}</p>
+        )}
+        <button
+          type="submit"
+          disabled={loading || !stripe}
+          style={{
+            width: '100%',
+            marginTop: 20,
+            padding: '16px 0',
+            background: loading || !stripe ? '#ccc' : T.accent,
+            color: '#fff',
+            border: 'none',
+            borderRadius: 4,
+            fontSize: 15,
+            fontFamily: T.display,
+            fontWeight: 600,
+            cursor: loading || !stripe ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            transition: 'background 0.2s',
+          }}
+        >
+          {loading ? 'Traitement...' : `Payer ${total.toFixed(2)}\u20AC`}
+        </button>
+      </form>
+    </div>
   )
 }
 
@@ -112,6 +233,97 @@ const COUNTRIES = [
   'Autre',
 ]
 
+/* ── Google Places Autocomplete hook ── */
+function useGooglePlacesAutocomplete(
+  inputRef: React.RefObject<HTMLInputElement | null>,
+  onSelect: (place: { address: string; city: string; zip: string; country: string }) => void
+) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const autocompleteRef = useRef<any>(null) // Google Maps Autocomplete instance
+
+  useEffect(() => {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY
+    if (!apiKey) return
+
+    const loadScript = () => {
+      if (document.getElementById('google-places-script')) {
+        initAutocomplete()
+        return
+      }
+      const script = document.createElement('script')
+      script.id = 'google-places-script'
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
+      script.async = true
+      script.defer = true
+      script.onload = initAutocomplete
+      document.head.appendChild(script)
+    }
+
+    const initAutocomplete = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const w = window as any
+      if (!inputRef.current || !w.google) return
+      const google = w.google
+
+      autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
+        types: ['address'],
+        fields: ['address_components', 'formatted_address'],
+      })
+
+      autocompleteRef.current.addListener('place_changed', () => {
+        const place = autocompleteRef.current.getPlace()
+        if (!place || !place.address_components) return
+
+        let streetNumber = ''
+        let route = ''
+        let city = ''
+        let zip = ''
+        let countryCode = ''
+
+        for (const component of place.address_components) {
+          const types = component.types
+          if (types.includes('street_number')) streetNumber = component.long_name
+          if (types.includes('route')) route = component.long_name
+          if (types.includes('locality')) city = component.long_name
+          if (types.includes('postal_code')) zip = component.long_name
+          if (types.includes('country')) countryCode = component.short_name
+        }
+
+        const address = streetNumber ? `${streetNumber} ${route}` : route
+        const countryName = CODE_COUNTRY_MAP[countryCode] || 'Autre'
+
+        onSelect({ address, city, zip, country: countryName })
+      })
+    }
+
+    loadScript()
+
+    return () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const w = window as any
+      if (autocompleteRef.current && w.google) {
+        w.google.maps.event.clearInstanceListeners(autocompleteRef.current)
+      }
+    }
+  }, [inputRef, onSelect])
+}
+
+/* ── Checkout data for localStorage persistence ── */
+interface CheckoutData {
+  email: string
+  firstName: string
+  lastName: string
+  address: string
+  city: string
+  zip: string
+  country: string
+  shipping: string
+  promoCode: string
+  promoApplied: boolean
+}
+
+const CHECKOUT_STORAGE_KEY = 'checkoutData'
+
 export default function CheckoutPage() {
   const { items, clearCart, total } = useCart()
   const router = useRouter()
@@ -121,10 +333,6 @@ export default function CheckoutPage() {
   const [clientSecret, setClientSecret] = useState('')
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -132,14 +340,123 @@ export default function CheckoutPage() {
   const [city, setCity] = useState('')
   const [country, setCountry] = useState('France')
   const [zip, setZip] = useState('')
-  const [shipping, setShipping] = useState<'standard' | 'express' | 'free'>('standard')
+  const [shipping, setShipping] = useState('standard')
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
   const [promoError, setPromoError] = useState('')
 
+  /* Shipping rates from API */
+  const [apiRates, setApiRates] = useState<ShippingRate[] | null>(null)
+  const [ratesLoading, setRatesLoading] = useState(false)
+
+  /* Address input ref for Google Places */
+  const addressInputRef = useRef<HTMLInputElement | null>(null)
+
+  /* ── 3. Restore from localStorage on mount ── */
+  useEffect(() => {
+    setMounted(true)
+    try {
+      const saved = localStorage.getItem(CHECKOUT_STORAGE_KEY)
+      if (saved) {
+        const data: CheckoutData = JSON.parse(saved)
+        if (data.email) setEmail(data.email)
+        if (data.firstName) setFirstName(data.firstName)
+        if (data.lastName) setLastName(data.lastName)
+        if (data.address) setAddress(data.address)
+        if (data.city) setCity(data.city)
+        if (data.zip) setZip(data.zip)
+        if (data.country) setCountry(data.country)
+        if (data.shipping) setShipping(data.shipping)
+        if (data.promoCode) setPromoCode(data.promoCode)
+        if (data.promoApplied) setPromoApplied(data.promoApplied)
+      }
+    } catch {}
+  }, [])
+
+  /* ── 3. Persist to localStorage on any field change ── */
+  useEffect(() => {
+    if (!mounted) return
+    try {
+      localStorage.setItem(
+        CHECKOUT_STORAGE_KEY,
+        JSON.stringify({
+          email,
+          firstName,
+          lastName,
+          address,
+          city,
+          zip,
+          country,
+          shipping,
+          promoCode,
+          promoApplied,
+        })
+      )
+    } catch {}
+  }, [mounted, email, firstName, lastName, address, city, zip, country, shipping, promoCode, promoApplied])
+
+  /* ── 1. Fetch shipping rates from API ── */
+  useEffect(() => {
+    if (!mounted) return
+    const countryCode = COUNTRY_CODE_MAP[country] || 'FR'
+
+    const fetchRates = async () => {
+      setRatesLoading(true)
+      try {
+        const res = await fetch(
+          `https://merchant-os-mauve.vercel.app/api/shipping/rates?site=strap&country=${countryCode}`
+        )
+        if (!res.ok) throw new Error('API error')
+        const data = await res.json()
+        if (Array.isArray(data) && data.length > 0) {
+          setApiRates(data)
+          /* If current shipping selection is not in the new rates, select first */
+          const ids = data.map((r: ShippingRate) => r.id)
+          if (!ids.includes(shipping)) {
+            setShipping(data[0].id)
+          }
+        } else {
+          setApiRates(null)
+        }
+      } catch {
+        setApiRates(null)
+      } finally {
+        setRatesLoading(false)
+      }
+    }
+
+    fetchRates()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, country])
+
+  /* ── 2. Google Places Autocomplete ── */
+  const handlePlaceSelect = useCallback(
+    (place: { address: string; city: string; zip: string; country: string }) => {
+      if (place.address) setAddress(place.address)
+      if (place.city) setCity(place.city)
+      if (place.zip) setZip(place.zip)
+      if (place.country && COUNTRIES.includes(place.country)) setCountry(place.country)
+    },
+    []
+  )
+
+  useGooglePlacesAutocomplete(addressInputRef, handlePlaceSelect)
+
+  /* ── Shipping cost calculation ── */
   const FREE_SHIP = 75
   const freeShip = total >= FREE_SHIP
-  const shippingCost = freeShip || shipping === 'free' ? 0 : shipping === 'express' ? 9.95 : 5.95
+
+  let shippingCost: number
+  if (freeShip) {
+    shippingCost = 0
+  } else if (apiRates) {
+    const selectedRate = apiRates.find(r => r.id === shipping)
+    shippingCost = selectedRate ? selectedRate.price : (apiRates[0]?.price ?? 5.95)
+  } else {
+    /* Fallback to hardcoded */
+    shippingCost = shipping === 'express' ? 9.95 : 5.95
+  }
+
   const discount = promoApplied ? Math.round(total * 0.1 * 100) / 100 : 0
   const grandTotal = Math.round((total + shippingCost - discount) * 100) / 100
 
@@ -179,7 +496,7 @@ export default function CheckoutPage() {
     }
   }
 
-  const handleSuccess = () => {
+  const handleSuccess = useCallback(() => {
     gtag.event({
       action: 'purchase',
       currency: 'EUR',
@@ -189,9 +506,11 @@ export default function CheckoutPage() {
       items: items.map(i => ({ item_id: i.productId, item_name: i.name, price: i.price, quantity: i.qty })),
     })
     clearCart()
+    /* Clear checkout data from localStorage on success */
+    try { localStorage.removeItem(CHECKOUT_STORAGE_KEY) } catch {}
     setStep('success')
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  }, [grandTotal, shippingCost, items, clearCart])
 
   if (!mounted) return null
 
@@ -269,6 +588,215 @@ export default function CheckoutPage() {
     )
   }
 
+  /* ── Build shipping options for the info step ── */
+  const renderShippingOptions = () => {
+    if (freeShip) {
+      return (
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '14px 16px',
+            border: `2px solid ${T.accent}`,
+            borderRadius: 4,
+            background: 'rgba(255,74,28,0.05)',
+            cursor: 'pointer',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <input type="radio" name="shipping" checked readOnly style={{ accentColor: T.accent }} />
+            <div>
+              <div
+                style={{
+                  fontFamily: T.display,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  color: '#1A1A1A',
+                }}
+              >
+                🎉 Livraison gratuite débloquée
+              </div>
+              <div style={{ fontFamily: T.mono, fontSize: 12, color: '#6B7280', marginTop: 4 }}>
+                5–7 jours ouvrés
+              </div>
+            </div>
+          </div>
+          <span style={{ fontFamily: T.display, fontWeight: 700, fontSize: 14, color: T.accent }}>
+            GRATUIT
+          </span>
+        </label>
+      )
+    }
+
+    /* API rates available */
+    if (apiRates && apiRates.length > 0) {
+      return (
+        <>
+          {apiRates.map(rate => (
+            <label
+              key={rate.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 16px',
+                border: shipping === rate.id ? `2px solid ${T.accent}` : '1px solid #E5E7EB',
+                borderRadius: 4,
+                background: shipping === rate.id ? 'rgba(255,74,28,0.04)' : '#fff',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <input
+                  type="radio"
+                  name="shipping"
+                  value={rate.id}
+                  checked={shipping === rate.id}
+                  onChange={() => setShipping(rate.id)}
+                  style={{ accentColor: T.accent }}
+                />
+                <div>
+                  <div
+                    style={{
+                      fontFamily: T.display,
+                      fontWeight: 600,
+                      fontSize: 14,
+                      color: '#1A1A1A',
+                    }}
+                  >
+                    {rate.carrier} — {rate.label}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: T.mono,
+                      fontSize: 12,
+                      color: '#6B7280',
+                      marginTop: 4,
+                    }}
+                  >
+                    {rate.delivery}
+                  </div>
+                </div>
+              </div>
+              <span
+                style={{
+                  fontFamily: T.display,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  color: '#1A1A1A',
+                }}
+              >
+                {rate.price === 0 ? 'GRATUIT' : `${rate.price.toFixed(2).replace('.', ',')}€`}
+              </span>
+            </label>
+          ))}
+          <div
+            style={{
+              fontSize: 13,
+              fontFamily: T.mono,
+              color: '#6B7280',
+              paddingTop: 10,
+              borderTop: '1px solid #E5E7EB',
+            }}
+          >
+            🚚 Livraison gratuite dès {FREE_SHIP}€ d&apos;achat
+          </div>
+        </>
+      )
+    }
+
+    /* Fallback to hardcoded rates */
+    return (
+      <>
+        {[
+          {
+            id: 'standard' as const,
+            label: 'Standard',
+            desc: '5–7 jours ouvrés',
+            price: '5,95€',
+          },
+          {
+            id: 'express' as const,
+            label: 'Express',
+            desc: '2–3 jours ouvrés',
+            price: '9,95€',
+          },
+        ].map(opt => (
+          <label
+            key={opt.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '14px 16px',
+              border: shipping === opt.id ? `2px solid ${T.accent}` : '1px solid #E5E7EB',
+              borderRadius: 4,
+              background: shipping === opt.id ? 'rgba(255,74,28,0.04)' : '#fff',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <input
+                type="radio"
+                name="shipping"
+                value={opt.id}
+                checked={shipping === opt.id}
+                onChange={() => setShipping(opt.id)}
+                style={{ accentColor: T.accent }}
+              />
+              <div>
+                <div
+                  style={{
+                    fontFamily: T.display,
+                    fontWeight: 600,
+                    fontSize: 14,
+                    color: '#1A1A1A',
+                  }}
+                >
+                  {opt.label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: T.mono,
+                    fontSize: 12,
+                    color: '#6B7280',
+                    marginTop: 4,
+                  }}
+                >
+                  {opt.desc}
+                </div>
+              </div>
+            </div>
+            <span
+              style={{
+                fontFamily: T.display,
+                fontWeight: 600,
+                fontSize: 14,
+                color: '#1A1A1A',
+              }}
+            >
+              {opt.price}
+            </span>
+          </label>
+        ))}
+        <div
+          style={{
+            fontSize: 13,
+            fontFamily: T.mono,
+            color: '#6B7280',
+            paddingTop: 10,
+            borderTop: '1px solid #E5E7EB',
+          }}
+        >
+          🚚 Livraison gratuite dès {FREE_SHIP}€ d&apos;achat
+        </div>
+      </>
+    )
+  }
+
   return (
     <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
       {/* Header minimal */}
@@ -333,7 +861,7 @@ export default function CheckoutPage() {
         }}
         className="strap-checkout-grid"
       >
-        {/* ── Left column ── */}
+        {/* -- Left column -- */}
         <div>
           {step === 'info' && (
             <form onSubmit={handleProceedToPayment}>
@@ -405,12 +933,14 @@ export default function CheckoutPage() {
                 <div style={{ marginBottom: 12 }}>
                   <label style={labelStyle}>ADRESSE</label>
                   <input
+                    ref={addressInputRef}
                     type="text"
                     required
                     value={address}
                     onChange={e => setAddress(e.target.value)}
                     placeholder="12 rue de la Paix"
                     style={inputStyle}
+                    autoComplete="off"
                   />
                 </div>
                 <div
@@ -469,138 +999,20 @@ export default function CheckoutPage() {
                   Mode de livraison
                 </h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {freeShip ? (
-                    <label
+                  {ratesLoading ? (
+                    <div
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '14px 16px',
-                        border: `2px solid ${T.accent}`,
-                        borderRadius: 4,
-                        background: 'rgba(255,74,28,0.05)',
-                        cursor: 'pointer',
+                        padding: '20px 0',
+                        textAlign: 'center',
+                        fontFamily: T.mono,
+                        fontSize: 13,
+                        color: '#9CA3AF',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <input
-                          type="radio"
-                          name="shipping"
-                          checked
-                          readOnly
-                          style={{ accentColor: T.accent }}
-                        />
-                        <div>
-                          <div
-                            style={{
-                              fontFamily: T.display,
-                              fontWeight: 600,
-                              fontSize: 14,
-                              color: '#1A1A1A',
-                            }}
-                          >
-                            🎉 Livraison gratuite débloquée
-                          </div>
-                          <div
-                            style={{ fontFamily: T.mono, fontSize: 12, color: '#6B7280', marginTop: 4 }}
-                          >
-                            5–7 jours ouvrés
-                          </div>
-                        </div>
-                      </div>
-                      <span
-                        style={{ fontFamily: T.display, fontWeight: 700, fontSize: 14, color: T.accent }}
-                      >
-                        GRATUIT
-                      </span>
-                    </label>
+                      Chargement des options de livraison...
+                    </div>
                   ) : (
-                    <>
-                      {[
-                        {
-                          id: 'standard' as const,
-                          label: 'Standard',
-                          desc: '5–7 jours ouvrés',
-                          price: '5,95€',
-                        },
-                        {
-                          id: 'express' as const,
-                          label: 'Express',
-                          desc: '2–3 jours ouvrés',
-                          price: '9,95€',
-                        },
-                      ].map(opt => (
-                        <label
-                          key={opt.id}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '14px 16px',
-                            border:
-                              shipping === opt.id ? `2px solid ${T.accent}` : '1px solid #E5E7EB',
-                            borderRadius: 4,
-                            background: shipping === opt.id ? 'rgba(255,74,28,0.04)' : '#fff',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <input
-                              type="radio"
-                              name="shipping"
-                              value={opt.id}
-                              checked={shipping === opt.id}
-                              onChange={() => setShipping(opt.id)}
-                              style={{ accentColor: T.accent }}
-                            />
-                            <div>
-                              <div
-                                style={{
-                                  fontFamily: T.display,
-                                  fontWeight: 600,
-                                  fontSize: 14,
-                                  color: '#1A1A1A',
-                                }}
-                              >
-                                {opt.label}
-                              </div>
-                              <div
-                                style={{
-                                  fontFamily: T.mono,
-                                  fontSize: 12,
-                                  color: '#6B7280',
-                                  marginTop: 4,
-                                }}
-                              >
-                                {opt.desc}
-                              </div>
-                            </div>
-                          </div>
-                          <span
-                            style={{
-                              fontFamily: T.display,
-                              fontWeight: 600,
-                              fontSize: 14,
-                              color: '#1A1A1A',
-                            }}
-                          >
-                            {opt.price}
-                          </span>
-                        </label>
-                      ))}
-                      <div
-                        style={{
-                          fontSize: 13,
-                          fontFamily: T.mono,
-                          color: '#6B7280',
-                          paddingTop: 10,
-                          borderTop: '1px solid #E5E7EB',
-                        }}
-                      >
-                        🚚 Livraison gratuite dès {FREE_SHIP}€ d&apos;achat
-                      </div>
-                    </>
+                    renderShippingOptions()
                   )}
                 </div>
               </div>
@@ -693,14 +1105,14 @@ export default function CheckoutPage() {
                     },
                   }}
                 >
-                  <PaymentForm total={grandTotal} onSuccess={handleSuccess} />
+                  <PaymentForm total={grandTotal} onSuccess={handleSuccess} clientSecret={clientSecret} />
                 </Elements>
               </div>
             </div>
           )}
         </div>
 
-        {/* ── Right column — Résumé ── */}
+        {/* -- Right column — Résumé -- */}
         <aside>
           <div
             style={{
