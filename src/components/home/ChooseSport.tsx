@@ -6,15 +6,15 @@ import { SportIcon, IconPlus, IconArrow } from '../Icons'
 
 const SPORT_LINKS: Record<string, string> = {
   football: '/products/bracelet-football-f8-plaque-or',
-  basketball: '/products/le-ballon-basketball',
-  tennis: '/products/la-raquette-tennis',
+  basketball: '/products/bracelet-basketball-silver',
+  tennis: '/products/bracelet-tennis-silver',
   running: '/products/bracelet-running-woman-silver',
-  muscu: '/products/la-fonte-kettlebell-inox',
+  muscu: '/products/bracelet-kettlebell-silver',
   cyclisme: '/products/bracelet-velo-maillon-silver',
-  boxe: '/products/le-gant-boxe',
+  boxe: '/products/bracelet-boxe-silver',
   ski: '/products/bracelet-kettlebell-rose-gold',
   padel: '/products/bracelet-ping-pong-argente',
-  golf: '/products/le-green-golf-platine',
+  golf: '/products/bracelet-golf-silver',
   natation: '/products/bracelet-natation-argente',
 }
 

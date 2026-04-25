@@ -1,4 +1,4 @@
-import { PRODUCTS, getProductByHandle } from '@/lib/products'
+import { PRODUCTS, getProductByHandle, isServiceProduct } from '@/lib/products'
 import { notFound } from 'next/navigation'
 import AnnouncementBar from '@/components/AnnouncementBar'
 import NavBar from '@/components/NavBar'
@@ -6,7 +6,7 @@ import Footer from '@/components/Footer'
 import ProductPageClient from '@/components/product/ProductPageClient'
 
 export async function generateStaticParams() {
-  return PRODUCTS.map(p => ({ slug: p.handle }))
+  return PRODUCTS.filter(p => !isServiceProduct(p)).map(p => ({ slug: p.handle }))
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {

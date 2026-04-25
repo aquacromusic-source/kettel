@@ -28,13 +28,17 @@ export default function BestSellers({ products }: { products: Product[] }) {
             borderRadius: 4, overflow: 'hidden', position: 'relative',
           }}>
             <div style={{ position: 'relative', aspectRatio: '1', background: T.ink, overflow: 'hidden' }}>
-              <Image
-                src={p.thumbImage}
-                alt={p.title}
-                fill
-                style={{ objectFit: 'cover' }}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              />
+              {p.thumbImage ? (
+                <Image
+                  src={p.thumbImage}
+                  alt={p.title}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                />
+              ) : (
+                <div className="strap-placeholder" style={{ width: '100%', height: '100%' }}>STRAP.</div>
+              )}
               {p.badge && (
                 <span style={{
                   position: 'absolute', top: 12, left: 12, background: T.accent, color: '#fff',

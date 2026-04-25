@@ -14,7 +14,7 @@ const securityHeaders = [
       "img-src 'self' data: blob: https://mykettel.com https://cdn.shopify.com https://www.google-analytics.com",
       "font-src 'self' data:",
       "frame-src https://js.stripe.com",
-      "connect-src 'self' https://api.stripe.com https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com",
+      "connect-src 'self' https://api.stripe.com https://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com",
     ].join('; '),
   },
 ]
