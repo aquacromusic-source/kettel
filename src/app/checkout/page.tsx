@@ -331,6 +331,7 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false)
   const [step, setStep] = useState<'info' | 'payment' | 'success'>('info')
   const [clientSecret, setClientSecret] = useState('')
+  const [paymentIntentId, setPaymentIntentId] = useState('')
   const [loading, setLoading] = useState(false)
 
   const [email, setEmail] = useState('')
@@ -470,39 +471,67 @@ export default function CheckoutPage() {
     }
   }
 
-  const handleProceedToPayment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
+  // Create Payment Intent ONCE when cart is ready
+  useEffect(() => {
+    if (!mounted || items.length === 0 || paymentIntentId) return
+    const cartItemsPayload = items.map(i => ({ id: i.productId, name: i.name, qty: i.qty, cordColor: i.cordColor, engravingText: i.engravingText, price: i.price }))
+    const shippingAddress = { firstName, lastName, address, city, zip, country }
+    fetch('/api/payment-intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: grandTotal,
+        email: email || undefined,
+        siteId: 'strap',
+        cartItems: JSON.stringify(cartItemsPayload),
+        shippingAddress: JSON.stringify(shippingAddress),
+        shipping,
+        discount,
+      }),
+    }).then(r => r.json()).then(d => {
+      if (d.clientSecret) {
+        setClientSecret(d.clientSecret)
+        const piId = d.clientSecret.split('_secret_')[0]
+        setPaymentIntentId(piId)
+      }
+    }).catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, items.length])
+
+  // Update Payment Intent with debounce 500ms when fields change
+  useEffect(() => {
+    if (!paymentIntentId) return
+    const timeoutId = setTimeout(() => {
       const cartItemsPayload = items.map(i => ({ id: i.productId, name: i.name, qty: i.qty, cordColor: i.cordColor, engravingText: i.engravingText, price: i.price }))
       const shippingAddress = { firstName, lastName, address, city, zip, country }
-      const res = await fetch('/api/payment-intent', {
+      fetch('/api/payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: grandTotal,
-          email: email || undefined,
+          email,
+          paymentIntentId,
+          siteId: 'strap',
           cartItems: JSON.stringify(cartItemsPayload),
           shippingAddress: JSON.stringify(shippingAddress),
           shipping,
           discount,
         }),
-      })
-      const { clientSecret: secret } = await res.json()
-      setClientSecret(secret)
-      setStep('payment')
-      gtag.event({
-        action: 'begin_checkout',
-        currency: 'EUR',
-        value: grandTotal,
-        items: items.map(i => ({ item_id: i.productId, item_name: i.name, price: i.price, quantity: i.qty })),
-      })
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
+      }).catch(() => {})
+    }, 500)
+    return () => clearTimeout(timeoutId)
+  }, [email, firstName, lastName, address, city, zip, country, shipping, grandTotal, paymentIntentId, items, discount])
+
+  const handleProceedToPayment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    gtag.event({
+      action: 'begin_checkout',
+      currency: 'EUR',
+      value: grandTotal,
+      items: items.map(i => ({ item_id: i.productId, item_name: i.name, price: i.price, quantity: i.qty })),
+    })
+    setStep('payment')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleSuccess = useCallback(() => {

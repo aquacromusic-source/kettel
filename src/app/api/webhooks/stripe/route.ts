@@ -58,7 +58,10 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     cart_items,
     shipping_address,
     discount,
+    customer_email,
   } = metadata
+
+  const email = customer_email || receipt_email
 
   if (!cart_items) {
     console.error('Missing cart_items in payment intent metadata')
@@ -73,7 +76,7 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     .insert({
       site_id,
       stripe_payment_intent_id: paymentIntent.id,
-      customer_email: receipt_email,
+      customer_email: email,
       amount: amount / 100,
       currency: 'eur',
       status: 'paid',
