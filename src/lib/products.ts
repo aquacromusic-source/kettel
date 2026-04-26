@@ -144,8 +144,8 @@ export const PRODUCTS: Product[] = [
     "category": "signature",
     "finish": "Plaqué Argent Brossé",
     "images": [],
-    "thumbImage": "/images/products/shopify/gravure-supplementaire-1776336571393-1.jpg",
-    "heroImage": "/images/products/shopify/gravure-supplementaire-1776336571393-1.jpg",
+    "thumbImage": "",
+    "heroImage": "",
     "cordColors": [
       "noir",
       "marine",
@@ -153,7 +153,7 @@ export const PRODUCTS: Product[] = [
       "rouge",
       "blanc"
     ],
-    "featured": true,
+    "featured": false,
     "tags": [
       "easify_product_options"
     ],
@@ -192,8 +192,8 @@ export const PRODUCTS: Product[] = [
     "category": "signature",
     "finish": "Plaqué Argent Brossé",
     "images": [],
-    "thumbImage": "/images/products/shopify/ajouter-une-gravure-1776336082242-1.jpg",
-    "heroImage": "/images/products/shopify/ajouter-une-gravure-1776336082242-1.jpg",
+    "thumbImage": "",
+    "heroImage": "",
     "cordColors": [
       "noir",
       "marine",
@@ -201,7 +201,7 @@ export const PRODUCTS: Product[] = [
       "rouge",
       "blanc"
     ],
-    "featured": true,
+    "featured": false,
     "tags": [
       "easify_product_options"
     ],
@@ -4212,7 +4212,7 @@ export function getProductByHandle(handle: string): Product | undefined {
 }
 
 export function getFeaturedProducts(): Product[] {
-  return PRODUCTS.filter(p => p.featured)
+  return PRODUCTS.filter(p => !isServiceProduct(p) && p.featured)
 }
 
 export function getProductsBySport(sport: string): Product[] {

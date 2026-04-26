@@ -1370,7 +1370,7 @@ export default function CheckoutPage() {
           🔒 Paiement sécurisé SSL
         </div>
         <Link
-          href="/mentions-legales"
+          href="#"
           style={{ fontSize: 12, fontFamily: T.mono, color: '#9CA3AF', textDecoration: 'none' }}
         >
           Mentions légales
