@@ -105,7 +105,7 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     })
   }
 
-  console.log('Email confirmation to send:', receipt_email)
+  console.log('Email confirmation to send:', email)
 }
 
 async function handleCustomer(customer: Stripe.Customer) {
