@@ -60,17 +60,19 @@ export default function CatalogueClient({ products }: { products: Product[] }) {
 
   // Restore scroll position from sessionStorage
   useEffect(() => {
+    history.scrollRestoration = 'manual'
     const savedScrollY = sessionStorage.getItem('catalogue_scrollY')
     const savedVisible = sessionStorage.getItem('catalogue_visible')
     if (savedScrollY && savedVisible) {
       isRestored.current = true
       setVisible(Number(savedVisible))
-      // Robust scroll restore: retry until DOM is tall enough or max attempts
       const target = Number(savedScrollY)
       let attempts = 0
       const tryScroll = () => {
         if (document.documentElement.scrollHeight >= target + 100 || attempts++ > 60) {
           window.scrollTo(0, target)
+          // Backup: ensure scroll sticks after Next.js hydration
+          setTimeout(() => window.scrollTo(0, target), 150)
         } else {
           requestAnimationFrame(tryScroll)
         }
