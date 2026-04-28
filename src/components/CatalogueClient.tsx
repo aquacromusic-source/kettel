@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { T, CORD_COLORS } from './tokens'
@@ -33,7 +33,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function CatalogueClient({ products }: { products: Product[] }) {
   const [sport, setSport] = useState<string>('all')
   const [category, setCategory] = useState<string>('all')
-  const [page, setPage] = useState(1)
+  const [visible, setVisible] = useState(PAGE_SIZE)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const isRestored = useRef(false)
 
   const sports = useMemo(() => {
     const seen = new Set<string>()
@@ -49,14 +51,66 @@ export default function CatalogueClient({ products }: { products: Product[] }) {
     })
   }, [products, sport, category])
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   function handleFilter(key: 'sport' | 'category', value: string) {
     if (key === 'sport') setSport(value)
     else setCategory(value)
-    setPage(1)
+    setVisible(PAGE_SIZE)
   }
+
+  // Restore scroll position from sessionStorage
+  useEffect(() => {
+    const savedScrollY = sessionStorage.getItem('catalogue_scrollY')
+    const savedVisible = sessionStorage.getItem('catalogue_visible')
+    if (savedScrollY && savedVisible) {
+      isRestored.current = true
+      setVisible(Number(savedVisible))
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo(0, Number(savedScrollY))
+        })
+      })
+      sessionStorage.removeItem('catalogue_scrollY')
+      sessionStorage.removeItem('catalogue_visible')
+    }
+  }, [])
+
+  // Infinite scroll via IntersectionObserver
+  useEffect(() => {
+    if (!sentinelRef.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && visible < filtered.length) {
+          setVisible(v => v + PAGE_SIZE)
+        }
+      },
+      { rootMargin: '200px' }
+    )
+    observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [visible, filtered.length])
+
+  // Save scroll position before navigating to a product
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const link = (e.target as HTMLElement).closest('a[href*="/products/"]')
+      if (link) {
+        sessionStorage.setItem('catalogue_scrollY', String(window.scrollY))
+        sessionStorage.setItem('catalogue_visible', String(visible))
+      }
+    }
+    document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
+  }, [visible])
+
+  // Reset visible when filters change (but not on restore)
+  useEffect(() => {
+    if (isRestored.current) {
+      isRestored.current = false
+      return
+    }
+    setVisible(PAGE_SIZE)
+  }, [sport, category])
 
   return (
     <div style={{ padding: 'clamp(32px,4vw,60px) clamp(16px,4vw,48px)' }}>
@@ -103,7 +157,7 @@ export default function CatalogueClient({ products }: { products: Product[] }) {
 
       {/* Grid */}
       <div className="strap-product-grid">
-        {paginated.map(p => (
+        {filtered.slice(0, visible).map(p => (
           <article key={p.id} style={{
             background: T.ink2, border: `1px solid ${T.line2}`,
             borderRadius: 4, overflow: 'hidden', position: 'relative',
@@ -170,29 +224,17 @@ export default function CatalogueClient({ products }: { products: Product[] }) {
         ))}
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 48, flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="strap-btn-ghost"
-            style={{ padding: '10px 20px', fontSize: 13, borderRadius: 2, opacity: page === 1 ? 0.4 : 1 }}
-          >← Précédent</button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-            <button
-              key={n}
-              onClick={() => setPage(n)}
-              className={n === page ? 'strap-btn-primary' : 'strap-btn-ghost'}
-              style={{ padding: '10px 16px', fontSize: 13, borderRadius: 2, minWidth: 44 }}
-            >{n}</button>
-          ))}
-          <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="strap-btn-ghost"
-            style={{ padding: '10px 20px', fontSize: 13, borderRadius: 2, opacity: page === totalPages ? 0.4 : 1 }}
-          >Suivant →</button>
+      {/* Sentinel for infinite scroll */}
+      <div ref={sentinelRef} style={{ height: 1 }} />
+      {visible < filtered.length && (
+        <div style={{ textAlign: 'center', marginTop: 40 }}>
+          <div style={{ width: 20, height: 20, margin: '0 auto', border: `2px solid ${T.accent}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        </div>
+      )}
+      {visible >= filtered.length && filtered.length > 0 && (
+        <div style={{ textAlign: 'center', marginTop: 40, opacity: 0.4 }}>
+          <span className="strap-mono" style={{ color: T.fog, fontSize: 11 }}>§ {filtered.length} produits affichés</span>
         </div>
       )}
     </div>
