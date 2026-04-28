@@ -65,11 +65,17 @@ export default function CatalogueClient({ products }: { products: Product[] }) {
     if (savedScrollY && savedVisible) {
       isRestored.current = true
       setVisible(Number(savedVisible))
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.scrollTo(0, Number(savedScrollY))
-        })
-      })
+      // Robust scroll restore: retry until DOM is tall enough or max attempts
+      const target = Number(savedScrollY)
+      let attempts = 0
+      const tryScroll = () => {
+        if (document.documentElement.scrollHeight >= target + 100 || attempts++ > 60) {
+          window.scrollTo(0, target)
+        } else {
+          requestAnimationFrame(tryScroll)
+        }
+      }
+      requestAnimationFrame(tryScroll)
       sessionStorage.removeItem('catalogue_scrollY')
       sessionStorage.removeItem('catalogue_visible')
     }

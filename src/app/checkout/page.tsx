@@ -332,6 +332,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<'info' | 'payment' | 'success'>('info')
   const [clientSecret, setClientSecret] = useState('')
   const [paymentIntentId, setPaymentIntentId] = useState('')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(false)
 
   const [email, setEmail] = useState('')
